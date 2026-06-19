@@ -1,23 +1,30 @@
 import SectionGrid from "@/components/section/section-grid";
 import { getBoardById } from "@/lib/services/queries/board";
 import { getSections } from "@/lib/services/queries/section";
+import { getViewerRole, getMembers } from "@/lib/services/queries/member";
+import { Member } from "@/lib/types";
 
 const BoardPage = async ({
     params
 }: {
-    params: Promise<{ boardId: string }>
+    params: Promise<{ orgId: string; boardId: string }>
 }) => {
-    const { boardId } = await params
+    const { orgId, boardId } = await params
 
-    const [board, sections] = await Promise.all([
+    const [board, sections, role, members] = await Promise.all([
         getBoardById(boardId),
-        getSections(boardId)
+        getSections(boardId),
+        getViewerRole(orgId),
+        getMembers(orgId)
     ])
 
     return (
-        <div className="min-h-full items-stretch">
-            <SectionGrid board={board.data} sections={sections.data ?? []} />
-        </div>
+        <SectionGrid
+            board={board.data}
+            sections={sections.data ?? []}
+            role={role}
+            members={(members.data as Member[] | undefined) ?? []}
+        />
     )
 }
 

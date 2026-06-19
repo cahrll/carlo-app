@@ -78,6 +78,7 @@ export async function updateTask(id: string, unsafeData: z.infer<typeof updateTa
             due_date: data.due_date,
             assignee_id: data.assignee_id || null,
             priority: data.priority,
+            updated_at: new Date().toISOString(),
         })
         .eq('id', id)
         .select('*, creator:creator_id(name), assignee:assignee_id(name)')
@@ -116,7 +117,7 @@ export async function moveTask(unsafeData: z.infer<typeof moveTaskSchema>) {
 
     const { error: moveError } = await supabase
         .from('task')
-        .update({ section_id: data.targetSectionId })
+        .update({ section_id: data.targetSectionId, updated_at: new Date().toISOString() })
         .eq('id', data.taskId)
 
     if (moveError) {

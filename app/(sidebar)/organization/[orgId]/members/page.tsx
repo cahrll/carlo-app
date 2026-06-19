@@ -1,202 +1,182 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
 import { Invitation, Member, UserProfile } from "@/lib/types"
-import { formatDate } from "@/lib/utils"
+import { formatShort } from "@/lib/utils"
 import { getMembers } from "@/lib/services/queries/member"
 import { getInvitationsByOrg } from "@/lib/services/queries/invitation"
 import { getAllProfiles } from "@/lib/services/queries/profile"
-import { Button } from "@/components/ui/button"
 import { notFound } from "next/navigation"
-import { Plus } from "lucide-react"
 import InviteMemberDialog from "@/components/organization/invite-member-dialog"
+import { Btn, Pill, RoleBadge } from "@/components/ui/pm"
+import { UserAvatar } from "@/components/ui/user-avatar"
+import { Content, PageHeader } from "@/components/ui/page"
+import { IconPlus, IconMail } from "@/components/ui/icons"
 
-function getRoleBadgeVariant(role: string) {
-    switch (role) {
-        case "owner":
-            return "default" as const
-        case "admin":
-            return "secondary" as const
-        default:
-            return "outline" as const
-    }
-}
+const thCls =
+  "font-mono text-[10px] tracking-[0.1em] uppercase text-faint font-medium text-left px-[14px] py-[9px] border-b border-line"
+const tdCls = "px-[14px] py-[11px] border-b border-line align-middle"
 
-function getStatusClassName(status: string) {
-    switch (status) {
-        case "accepted":
-            return "border-green-600/20 text-green-600 dark:border-green-500/20 dark:text-green-500"
-        case "removed":
-        case "revoked":
-        case "expired":
-            return "border-red-600/20 text-red-600 dark:border-red-500/20 dark:text-red-500"
-        case "pending":
-            return "border-yellow-600/20 text-yellow-600 dark:border-yellow-500/20 dark:text-yellow-500"
-        case "declined":
-            return "border-muted-foreground/20 text-muted-foreground"
-        default:
-            return ""
-    }
+function statusPill(status: string) {
+  if (status === "accepted" || status === "active")
+    return <Pill tone="ok">active</Pill>
+  if (status === "pending") return <Pill tone="warn">pending</Pill>
+  if (["removed", "revoked", "expired", "declined"].includes(status))
+    return <Pill tone="bad">{status}</Pill>
+  return <Pill tone="idle">{status}</Pill>
 }
 
 const MembersPage = async ({
-    params,
+  params,
 }: {
-    params: Promise<{ orgId: string }>
+  params: Promise<{ orgId: string }>
 }) => {
-    const { orgId } = await params
-    const [{ data: members, error }, { data: invitations, error: invitationsError }, { data: profiles }] = await Promise.all([
-        getMembers(orgId),
-        getInvitationsByOrg(orgId),
-        getAllProfiles(),
+  const { orgId } = await params
+  const [{ data: members, error }, { data: invitations }, { data: profiles }] =
+    await Promise.all([
+      getMembers(orgId),
+      getInvitationsByOrg(orgId),
+      getAllProfiles(),
     ])
 
-    if (error || !members) {
-        notFound()
-    }
+  if (error || !members) notFound()
 
-    const memberIds = new Set((members as Member[]).map((m) => m.member_id))
-    const pendingInvitationEmails = new Set(
-        (invitations as Invitation[] | undefined)
-            ?.filter((i) => i.status === "pending")
-            .map((i) => i.email.toLowerCase()) ?? []
-    )
+  const memberList = members as Member[]
+  const inviteList = (invitations as Invitation[] | undefined) ?? []
+  const memberIds = new Set(memberList.map((m) => m.member_id))
+  const pendingEmails = new Set(
+    inviteList
+      .filter((i) => i.status === "pending")
+      .map((i) => i.email.toLowerCase())
+  )
 
-    return (
-        <div className="max-w-4xl mx-auto w-full min-h-full items-stretch px-4 lg:px-10 py-6 space-y-8">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight">Members</h1>
-                    <p className="text-muted-foreground text-sm mt-1">
-                        Manage and view your organization members.
-                    </p>
-                </div>
-                <InviteMemberDialog
-                    organizationId={orgId}
-                    profiles={(profiles as UserProfile[] | undefined) ?? []}
-                    memberIds={[...memberIds]}
-                    pendingInvitationEmails={[...pendingInvitationEmails]}
-                >
-                    <Button size="sm">
-                        <Plus />
-                        Invite Member
-                    </Button>
-                </InviteMemberDialog>
-            </div>
+  return (
+    <Content>
+      <PageHeader
+        title="Members"
+        sub={`${memberList.length} active · ${inviteList.length} pending`}
+        actions={
+          <InviteMemberDialog
+            organizationId={orgId}
+            profiles={(profiles as UserProfile[] | undefined) ?? []}
+            memberIds={[...memberIds]}
+            pendingInvitationEmails={[...pendingEmails]}
+          >
+            <Btn>
+              <IconPlus />
+              Invite member
+            </Btn>
+          </InviteMemberDialog>
+        }
+      />
 
-            <div className="rounded-md border">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Member</TableHead>
-                            <TableHead>Role</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Joined</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {(members as Member[]).map((member) => (
-                            <TableRow key={member.member_id}>
-                                <TableCell>
-                                    <div className="flex items-center gap-3">
-                                        <Avatar size="default">
-                                            <AvatarImage
-                                                src={member.user_profile.image_url ?? undefined}
-                                                alt={member.user_profile.name ?? "Member"}
-                                            />
-                                            <AvatarFallback>
-                                                {member.user_profile.name?.charAt(0).toUpperCase() ?? "?"}
-                                            </AvatarFallback>
-                                        </Avatar>
-                                        <p className="text-sm font-medium leading-none truncate">
-                                            {member.user_profile.name ?? "Unnamed"}
-                                        </p>
-                                    </div>
-                                </TableCell>
-                                <TableCell>
-                                    <Badge variant={getRoleBadgeVariant(member.role)} className="capitalize">
-                                        {member.role}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell>
-                                    <Badge variant="outline" className={`capitalize ${getStatusClassName(member.status)}`}>
-                                        {member.status === "accepted" ? "Active" : member.status}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell className="text-muted-foreground text-sm">
-                                    {formatDate(member.created_at)}
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                        {members.length === 0 && (
-                            <TableRow>
-                                <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
-                                    No members found.
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
-
-            <div className="space-y-4">
-                <div>
-                    <h2 className="text-lg font-semibold tracking-tight">Pending Invitations</h2>
-                    <p className="text-muted-foreground text-sm mt-1">
-                        Invitations that have been sent but not yet accepted.
-                    </p>
-                </div>
-                <div className="rounded-md border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Email</TableHead>
-                                <TableHead>Role</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Invited</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {!invitationsError && invitations && (invitations as Invitation[]).map((invitation) => (
-                                <TableRow key={invitation.id}>
-                                    <TableCell>
-                                        <p className="text-sm font-medium truncate">{invitation.email}</p>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Badge variant={getRoleBadgeVariant(invitation.role)} className="capitalize">
-                                            {invitation.role}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Badge variant="outline" className={`capitalize ${getStatusClassName(invitation.status)}`}>
-                                            {invitation.status}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell className="text-muted-foreground text-sm">
-                                        {formatDate(invitation.created_at)}
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                            {(!invitations || invitations.length === 0) && (
-                                <TableRow>
-                                    <TableCell colSpan={4} className="h-24 text-center text-muted-foreground">
-                                        No pending invitations.
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </div>
-            </div>
+      <div className="px-[22px] pb-[26px] max-nav:px-[14px]">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse min-w-[560px] [&_tbody_tr:last-child_td]:border-b-0">
+            <thead>
+              <tr>
+                <th className={thCls}>Member</th>
+                <th className={thCls}>Role</th>
+                <th className={thCls}>Status</th>
+                <th className={thCls}>Joined</th>
+              </tr>
+            </thead>
+            <tbody>
+              {memberList.map((m) => (
+                <tr key={m.member_id} className="transition-colors hover:bg-bg2">
+                  <td className={tdCls}>
+                    <div className="flex items-center gap-[9px]">
+                      <UserAvatar
+                        name={m.user_profile.name}
+                        hueKey={m.user_profile.id}
+                        size={26}
+                      />
+                      <span className="font-medium">
+                        {m.user_profile.name ?? "Unnamed"}
+                        <span className="block font-mono text-[10.5px] text-faint">
+                          #{m.member_id.slice(0, 8)}
+                        </span>
+                      </span>
+                    </div>
+                  </td>
+                  <td className={tdCls}>
+                    <RoleBadge role={m.role} />
+                  </td>
+                  <td className={tdCls}>{statusPill(m.status)}</td>
+                  <td className={`${tdCls} font-mono text-[12px] text-muted-foreground`}>
+                    {formatShort(m.created_at)}
+                  </td>
+                </tr>
+              ))}
+              {memberList.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={4}
+                    className="h-24 text-center font-mono text-[12px] text-faint"
+                  >
+                    No members found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
-    )
+
+        <div className="font-mono text-[11px] tracking-[0.12em] uppercase text-faint mt-[26px] mb-[10px]">
+          Pending invitations
+        </div>
+        {inviteList.length === 0 ? (
+          <div className="flex flex-col items-center justify-center gap-[7px] rounded-md border border-line bg-bg2 px-4 py-9 text-center">
+            <span className="grid place-items-center size-9 rounded-full bg-bg3 border border-line text-faint [&_svg]:size-[16px] mb-1">
+              <IconMail />
+            </span>
+            <p className="text-[13px] font-medium text-ink">
+              No pending invitations
+            </p>
+            <p className="text-[11.5px] text-muted-foreground">
+              Invites you send will appear here until they are accepted.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse min-w-[560px] [&_tbody_tr:last-child_td]:border-b-0">
+              <thead>
+                <tr>
+                  <th className={thCls}>Email</th>
+                  <th className={thCls}>Role</th>
+                  <th className={thCls}>Status</th>
+                  <th className={thCls}>Invited by</th>
+                </tr>
+              </thead>
+              <tbody>
+                {inviteList.map((i) => (
+                  <tr key={i.id} className="transition-colors hover:bg-bg2">
+                    <td className={tdCls}>
+                      <div className="flex items-center gap-[9px]">
+                        <span className="grid place-items-center size-[26px] rounded-full bg-bg3 border border-line text-faint [&_svg]:size-[14px]">
+                          <IconMail />
+                        </span>
+                        <span className="font-mono text-[12.5px] font-medium">
+                          {i.email}
+                        </span>
+                      </div>
+                    </td>
+                    <td className={tdCls}>
+                      <RoleBadge role={i.role} />
+                    </td>
+                    <td className={tdCls}>
+                      <Pill tone="warn">pending</Pill>
+                    </td>
+                    <td className={`${tdCls} font-mono text-[12px] text-muted-foreground`}>
+                      {i.invited_by_profile?.name?.split(" ")[0] ?? "someone"}
+                      {i.expires_at ? ` · expires ${formatShort(i.expires_at)}` : ""}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </Content>
+  )
 }
 
 export default MembersPage

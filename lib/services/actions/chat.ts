@@ -61,6 +61,40 @@ export async function addChatRoomMembers(unsafeData: z.infer<typeof addChatRoomM
     return { error: false, message: 'Members added successfully' }
 }
 
+export async function deleteChatRoom(chatRoomId: string) {
+    const user = await getCurrentUser()
+
+    if (!user) {
+        return { error: true, message: 'User is not authenticated' }
+    }
+
+    if (!chatRoomId.trim()) {
+        return { error: true, message: 'Chat room ID cannot be empty' }
+    }
+
+    const supabase = await createClient()
+
+    const { data: room } = await supabase
+        .from('chat_room')
+        .select('org_id')
+        .eq('id', chatRoomId)
+        .single()
+
+    const { error } = await supabase.rpc('delete_chat_room', {
+        p_chat_room_id: chatRoomId,
+    })
+
+    if (error) {
+        return { error: true, message: `Failed to delete chat room: ${error.message}` }
+    }
+
+    if (room?.org_id) {
+        revalidatePath(`/organization/${room.org_id}/inbox`)
+    }
+
+    return { error: false }
+}
+
 export async function sendMessage(unsafeData: z.infer<typeof sendMessageSchema>) {
     const { success, data } = sendMessageSchema.safeParse(unsafeData)
     const user = await getCurrentUser()

@@ -1,85 +1,118 @@
-'use client'
-import { cn } from '@/lib/utils'
-import Link from 'next/link'
-import { Card, CardContent, CardTitle } from '../ui/card'
-import { Boxes, Crown } from 'lucide-react'
-import OrganizationHeader from './organization-header'
-import { Organization } from '@/lib/types'
-import { Empty, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from '../ui/empty'
+"use client"
+
+import Link from "next/link"
+import { Organization } from "@/lib/types"
+import { FlowShell, FlowTitle, FlowLead } from "@/components/ui/flow"
+import { Btn, RoleBadge } from "@/components/ui/pm"
+import { PmEmpty } from "@/components/ui/pm-empty"
+import { nameHue } from "@/components/ui/user-avatar"
+import { IconPlus, IconRight, IconBell } from "@/components/ui/icons"
 
 const OrganizationList = ({
-    organizations,
-    error,
-    message,
-    id
+  organizations,
+  error,
+  message,
+  id,
+  invitesCount = 0,
 }: {
-    organizations: Organization[]
-    error: boolean
-    message?: string 
-    id: string
+  organizations: Organization[]
+  error: boolean
+  message?: string
+  id: string
+  invitesCount?: number
 }) => {
-
-    if(error){
-        return (
-            <>
-                <OrganizationHeader />
-            
-                <div className='flex flex-1 items-center justify-center'>
-                    <div>
-                        <h2>Error Loading Organizations</h2>
-                        <p>{message}</p>
-                    </div>
-                </div>
-            </>
-        )
-    }
-
+  if (error) {
     return (
-        <>
-            <OrganizationHeader />
-
-            {organizations.length === 0 ? (
-                <Empty>
-                    <EmptyHeader>
-                        <EmptyMedia variant="icon">
-                            <Boxes strokeWidth={1}/>
-                        </EmptyMedia>
-                        <EmptyTitle>No Organizations Yet</EmptyTitle>
-                        <EmptyDescription>
-                            You haven&apos;t created any organizations yet. Get started by creating
-                            your first organization.
-                        </EmptyDescription>
-                    </EmptyHeader>
-                </Empty>
-            ) : (
-                <div className={cn(
-                    'gap-4 grid grid-cols-[repeat(auto-fill,minmax(250px,1fr))]',
-                )}>
-                    {organizations.map((organization: any) => (
-                        <Link href={`/organization/${organization.id}`} key={organization.id}>
-                            <Card className="@container/card rounded-md py-4 hover:border-primary">
-                                <CardContent className='flex items-center gap-2 px-4 w-full'>
-                                <div className="rounded-full bg-primary text-primary-foreground w-10 aspect-square flex items-center justify-center">
-                                    <Boxes strokeWidth={1.25} size={20}/>
-                                </div>
-                                <div className='w-full'>
-                                    <CardTitle className="w-full text-sm font-semibold tabular-nums flex items-center justify-between gap-1">
-                                        <span>
-                                            {organization.name}
-                                        </span>
-                                        {id === organization.owner_id && (
-                                            <Crown size={16} className='text-yellow-500'/>
-                                        )}
-                                    </CardTitle>
-                                </div>
-                                </CardContent>
-                            </Card>
-                        </Link>
-                    ))}
-                </div>
-            )}
-        </>
+      <FlowShell wide>
+        <FlowTitle>Could not load workspaces</FlowTitle>
+        <FlowLead>{message ?? "Please try again later."}</FlowLead>
+      </FlowShell>
     )
+  }
+
+  return (
+    <FlowShell wide>
+      <FlowTitle>Your workspaces</FlowTitle>
+      <FlowLead>
+        Pick an organization to jump back into, or start a new one.
+      </FlowLead>
+
+      {invitesCount > 0 && (
+        <Link
+          href="/invites"
+          className="flex items-center gap-[11px] p-[12px_14px] bg-acc-t border border-acc/30 rounded-lg text-ink mt-5 mb-[2px] text-[12.5px] [&>svg]:size-[17px] [&>svg]:text-acc [&>svg]:shrink-0"
+        >
+          <IconBell />
+          <span>
+            You have <b className="font-mono">{invitesCount}</b> pending
+            invitation{invitesCount > 1 ? "s" : ""}.
+          </span>
+          <span className="ml-auto text-acc font-semibold font-mono text-[12px] inline-flex items-center gap-[5px] [&_svg]:size-4">
+            Review
+            <IconRight />
+          </span>
+        </Link>
+      )}
+
+      {organizations.length === 0 ? (
+        <div className="mt-4">
+          <PmEmpty
+            icon={<IconPlus />}
+            title="No organizations yet"
+            description="Create your first organization to start planning, assigning, and chatting in one place."
+            actions={
+              <Btn asChild>
+                <Link href="/create">
+                  <IconPlus />
+                  Create organization
+                </Link>
+              </Btn>
+            }
+          />
+        </div>
+      ) : (
+        <>
+          <div className="flex flex-col gap-[10px] mt-5">
+            {organizations.map((o) => {
+              const role = id === o.owner_id ? "owner" : "member"
+              return (
+                <Link
+                  key={o.id}
+                  href={`/organization/${o.id}`}
+                  className="flex items-center gap-[13px] p-[14px] border border-line rounded-lg bg-bg2 hover:border-line2 hover:-translate-y-px hover:bg-bg3 transition-[border-color,transform,background] duration-150 max-nav:flex-wrap"
+                >
+                  <span
+                    className="grid place-items-center size-10 rounded-[9px] font-bold text-[15px] text-acc-on shrink-0"
+                    style={{ background: `oklch(0.68 0.12 ${nameHue(o.id)})` }}
+                  >
+                    {o.name.charAt(0).toUpperCase()}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-[14px] truncate">
+                      {o.name}
+                    </div>
+                    <div className="font-mono text-[11px] text-faint mt-[2px]">
+                      you are {role}
+                    </div>
+                  </div>
+                  <RoleBadge role={role} />
+                  <span className="text-faint inline-flex [&_svg]:size-4">
+                    <IconRight />
+                  </span>
+                </Link>
+              )
+            })}
+          </div>
+          <Btn asChild variant="ghost" block className="mt-4">
+            <Link href="/create">
+              <IconPlus />
+              Create organization
+            </Link>
+          </Btn>
+        </>
+      )}
+    </FlowShell>
+  )
 }
 
 export default OrganizationList

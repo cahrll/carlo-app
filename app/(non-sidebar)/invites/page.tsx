@@ -1,113 +1,67 @@
-import { Badge } from "@/components/ui/badge"
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table"
 import InvitationActions from "@/components/invitation/invitation-actions"
 import { getCurrentUser } from "@/lib/services/getCurrentUser"
 import { getInvitationsByUser } from "@/lib/services/queries/invitation"
 import { UserInvitation } from "@/lib/types"
-import { formatDate } from "@/lib/utils"
+import { formatShort } from "@/lib/utils"
 import { redirect } from "next/navigation"
-
-function getRoleBadgeVariant(role: string) {
-    switch (role) {
-        case "admin":
-            return "secondary" as const
-        default:
-            return "outline" as const
-    }
-}
+import { FlowShell, FlowTitle, FlowLead } from "@/components/ui/flow"
+import { PmEmpty } from "@/components/ui/pm-empty"
+import { nameHue } from "@/components/ui/user-avatar"
+import { IconMail } from "@/components/ui/icons"
 
 const InvitesPage = async () => {
-    const user = await getCurrentUser()
+  const user = await getCurrentUser()
+  if (!user) redirect("/auth/login")
 
-    if (!user) {
-        redirect("/auth/login")
-    }
+  const { data: invitations, error } = await getInvitationsByUser()
+  const list = (invitations as UserInvitation[] | undefined) ?? []
 
-    const { data: invitations, error } = await getInvitationsByUser()
+  return (
+    <FlowShell wide back="/">
+      <FlowTitle>Pending invitations</FlowTitle>
+      <FlowLead>Teams that have invited you to collaborate.</FlowLead>
 
-    return (
-        <div className="min-h-screen-with-header max-w-7xl flex flex-col items-stretch px-6 mx-auto py-6 space-y-6">
-            <div className="max-w-4xl mx-auto w-full space-y-6">
-                <div>
-                    <h1 className="text-2xl font-semibold tracking-tight">Invitations</h1>
-                    <p className="text-muted-foreground text-sm mt-1">
-                        Organizations that have invited you to join.
-                    </p>
-                </div>
-
-                {error ? (
-                    <p className="text-sm text-destructive" role="alert">
-                        Could not load invitations. Try again later.
-                    </p>
-                ) : (
-                    <div className="rounded-md border">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Invitation ID</TableHead>
-                                    {/*TODO: Change To Org Name Later*/}
-                                    <TableHead>Role</TableHead>
-                                    <TableHead>Invited</TableHead>
-                                    <TableHead>Expires</TableHead>
-                                    <TableHead className="text-right w-[1%] whitespace-nowrap">
-                                        Actions
-                                    </TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {invitations && invitations.length > 0
-                                    ? (invitations as UserInvitation[]).map((invitation) => (
-                                          <TableRow key={invitation.id}>
-                                              <TableCell>
-                                                  <p className="text-sm font-medium leading-none">
-                                                      {invitation.id}
-                                                  </p>
-                                              </TableCell>
-                                              <TableCell>
-                                                  <Badge
-                                                      variant={getRoleBadgeVariant(invitation.role)}
-                                                      className="capitalize"
-                                                  >
-                                                      {invitation.role}
-                                                  </Badge>
-                                              </TableCell>
-                                              <TableCell className="text-muted-foreground text-sm">
-                                                  {formatDate(invitation.created_at)}
-                                              </TableCell>
-                                              <TableCell className="text-muted-foreground text-sm">
-                                                  {invitation.expires_at
-                                                      ? formatDate(invitation.expires_at)
-                                                      : "—"}
-                                              </TableCell>
-                                              <TableCell className="text-right">
-                                                  <InvitationActions invitationId={invitation.id} />
-                                              </TableCell>
-                                          </TableRow>
-                                      ))
-                                    : (
-                                          <TableRow>
-                                              <TableCell
-                                                  colSpan={5}
-                                                  className="h-24 text-center text-muted-foreground"
-                                              >
-                                                  No pending invitations.
-                                              </TableCell>
-                                          </TableRow>
-                                      )}
-                            </TableBody>
-                        </Table>
-                    </div>
-                )}
-            </div>
+      {error ? (
+        <p className="text-bad text-[12px] mt-4">
+          Could not load invitations. Try again later.
+        </p>
+      ) : list.length === 0 ? (
+        <div className="mt-4">
+          <PmEmpty
+            icon={<IconMail />}
+            title="No pending invitations"
+            description="When a team invites you to join, it will show up here."
+          />
         </div>
-    )
+      ) : (
+        <div className="flex flex-col gap-[10px] mt-5">
+          {list.map((inv) => (
+            <div
+              key={inv.id}
+              className="flex items-center gap-[13px] p-[14px] border border-line rounded-lg bg-bg2 max-nav:flex-wrap"
+            >
+              <span
+                className="grid place-items-center size-10 rounded-[9px] font-bold text-[15px] text-acc-on shrink-0"
+                style={{ background: `oklch(0.68 0.12 ${nameHue(inv.org_id)})` }}
+              >
+                {inv.organization.name.charAt(0).toUpperCase()}
+              </span>
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-[14px] truncate">
+                  {inv.organization.name}
+                </div>
+                <div className="font-mono text-[11px] text-faint mt-[2px]">
+                  invited as {inv.role}
+                  {inv.expires_at ? ` · expires ${formatShort(inv.expires_at)}` : ""}
+                </div>
+              </div>
+              <InvitationActions invitationId={inv.id} />
+            </div>
+          ))}
+        </div>
+      )}
+    </FlowShell>
+  )
 }
 
 export default InvitesPage

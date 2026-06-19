@@ -1,69 +1,97 @@
 import { createClient } from "@/lib/server"
 import { getCurrentUser } from "../getCurrentUser"
+import { Task } from "@/lib/types"
+
+const BASE_SELECT = "*, creator:creator_id(name), assignee:assignee_id(name)"
+const BOARD_SELECT = `${BASE_SELECT}, section:section_id!inner(board_id)`
+
+type RawTask = Record<string, unknown> & {
+  creator?: { name?: string | null } | null
+  assignee?: { name?: string | null } | null
+  task_comment?: { count: number }[] | null
+}
+
+function normalize(task: RawTask): Task {
+  const commentAgg = Array.isArray(task.task_comment)
+    ? task.task_comment[0]?.count
+    : undefined
+  return {
+    ...task,
+    creator_name: task.creator?.name ?? undefined,
+    assignee_name: task.assignee?.name ?? undefined,
+    comment_count: commentAgg,
+    creator: undefined,
+    assignee: undefined,
+    section: undefined,
+    task_comment: undefined,
+  } as unknown as Task
+}
 
 export async function getTasks(sectionId: string) {
-    const user = await getCurrentUser()
+  const user = await getCurrentUser()
 
-    if(!user) {
-        return { error: true, message: 'User is not authenticated'}
-    }
+  if (!user) {
+    return { error: true, message: "User is not authenticated" }
+  }
 
-    if(!sectionId.trim()) {
-        return { error: true, message: 'Section ID cannot be empty'}
-    }
+  if (!sectionId.trim()) {
+    return { error: true, message: "Section ID cannot be empty" }
+  }
 
-    const supabase = await createClient()
-    const {data, error} = await supabase
-        .from('task')
-        .select('*, creator:creator_id(name), assignee:assignee_id(name)')
-        .eq('section_id', sectionId)
-        .order('sort_order', { ascending: false })
+  const supabase = await createClient()
 
-    if(error) {
-        return { error: true, message: 'Failed to get tasks'}
-    }
+  // comment-count aggregate, fall back if absent
+  let { data, error } = await supabase
+    .from("task")
+    .select(`${BASE_SELECT}, task_comment(count)`)
+    .eq("section_id", sectionId)
+    .order("sort_order", { ascending: false })
 
-    const tasks = data.map(task => ({
-        ...task,
-        creator_name: task.creator?.name,
-        assignee_name: task.assignee?.name,
-        creator: undefined,
-        assignee: undefined,
-    }))
+  if (error) {
+    ;({ data, error } = await supabase
+      .from("task")
+      .select(BASE_SELECT)
+      .eq("section_id", sectionId)
+      .order("sort_order", { ascending: false }))
+  }
 
-    return { error: false, data: tasks}
+  if (error || !data) {
+    return { error: true, message: "Failed to get tasks" }
+  }
+
+  return { error: false, data: data.map(normalize) }
 }
 
 export async function getTasksByBoardId(boardId: string) {
-    const user = await getCurrentUser()
+  const user = await getCurrentUser()
 
-    if(!user) {
-        return { error: true, message: 'User is not authenticated'}
-    }
+  if (!user) {
+    return { error: true, message: "User is not authenticated" }
+  }
 
-    if(!boardId.trim()) {
-        return { error: true, message: 'Board ID cannot be empty'}
-    }
+  if (!boardId.trim()) {
+    return { error: true, message: "Board ID cannot be empty" }
+  }
 
-    const supabase = await createClient()
-    const {data, error} = await supabase
-        .from('task')
-        .select('*, creator:creator_id(name), assignee:assignee_id(name), section:section_id!inner(board_id)')
-        .eq('section.board_id', boardId)
-        .order('sort_order', { ascending: false })
+  const supabase = await createClient()
 
-    if(error) {
-        return { error: true, message: 'Failed to get tasks'}
-    }
+  let { data, error } = await supabase
+    .from("task")
+    .select(`${BOARD_SELECT}, task_comment(count)`)
+    .eq("section.board_id", boardId)
+    .order("sort_order", { ascending: false })
 
-    const tasks = data.map(task => ({
-        ...task,
-        creator_name: task.creator?.name,
-        assignee_name: task.assignee?.name,
-        creator: undefined,
-        assignee: undefined,
-        section: undefined,
-    }))
+  if (error) {
+    ;({ data, error } = await supabase
+      .from("task")
+      .select(BOARD_SELECT)
+      .eq("section.board_id", boardId)
+      .order("sort_order", { ascending: false }))
+  }
 
-    return { error: false, data: tasks}
+  if (error || !data) {
+    return { error: true, message: "Failed to get tasks" }
+  }
+
+  return { error: false, data: data.map(normalize) }
 }

@@ -85,3 +85,28 @@ export async function updateOrganization(id: string, unsafeData: z.infer<typeof 
     revalidatePath(`/organization/${id}`)
     return { error: false, organization }
 }
+
+export async function deleteOrganization(id: string) {
+    const user = await getCurrentUser()
+
+    if (!user) {
+        return { error: true, message: 'User is not authenticated' }
+    }
+
+    if (!id.trim()) {
+        return { error: true, message: 'Organization ID cannot be empty' }
+    }
+
+    const supabase = await createClient()
+
+    const { error } = await supabase.rpc('delete_organization', {
+        p_org_id: id,
+    })
+
+    if (error) {
+        return { error: true, message: `Failed to delete organization: ${error.message}` }
+    }
+
+    revalidatePath(`/`)
+    return { error: false }
+}

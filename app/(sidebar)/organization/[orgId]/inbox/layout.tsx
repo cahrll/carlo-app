@@ -18,7 +18,7 @@ const InboxLayout = async ({
     ])
 
     return (
-        <div className="flex h-screen-with-header overflow-hidden">
+        <div className="flex flex-1 min-h-0 overflow-hidden">
             <ConversationList
                 rooms={roomsResult.data ?? []}
                 members={membersResult.data ?? []}

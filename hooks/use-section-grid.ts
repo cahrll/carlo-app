@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useOptimistic, useRef, useState, useTransition } from 'react'
 import { Board, SectionWithTasks, Task } from '@/lib/types'
 import { useAuth } from '@/context/auth-context'
-import { createSection } from '@/lib/services/actions/section'
+import { createSection, deleteSection } from '@/lib/services/actions/section'
 import { createSectionSchema } from '@/lib/schemas/section'
 import { createTaskSchema } from '@/lib/schemas/task'
 import { createTask, moveTask } from '@/lib/services/actions/task'
@@ -48,26 +48,44 @@ export function useSectionGrid(board: Board, initialSections: SectionWithTasks[]
     }, [initialSections])
 
     const sectionIdsRef = useRef<Set<string>>(new Set(initialSections.map(s => s.id)))
+    const taskIdsRef = useRef<Set<string>>(
+        new Set(initialSections.flatMap(s => s.tasks.map(t => t.id)))
+    )
 
     useEffect(() => {
         sectionIdsRef.current = new Set(sections.map(s => s.id))
+        taskIdsRef.current = new Set(sections.flatMap(s => s.tasks.map(t => t.id)))
     }, [sections])
 
     useEffect(() => {
         const supabase = createClient()
 
         const fetchSectionsWithTasks = async () => {
+            const taskBaseSelect =
+                '*, creator:creator_id(name), assignee:assignee_id(name), section:section_id!inner(board_id)'
+
+            // comment-count aggregate, fall back if absent
+            const fetchTasks = async () => {
+                const withCount = await supabase
+                    .from('task')
+                    .select(`${taskBaseSelect}, task_comment(count)`)
+                    .eq('section.board_id', board.id)
+                    .order('sort_order', { ascending: false })
+                if (!withCount.error) return withCount
+                return supabase
+                    .from('task')
+                    .select(taskBaseSelect)
+                    .eq('section.board_id', board.id)
+                    .order('sort_order', { ascending: false })
+            }
+
             const [sectionsResult, tasksResult] = await Promise.all([
                 supabase
                     .from('section')
                     .select('*')
                     .eq('board_id', board.id)
                     .order('sort_order', { ascending: true }),
-                supabase
-                    .from('task')
-                    .select('*, creator:creator_id(name), assignee:assignee_id(name), section:section_id!inner(board_id)')
-                    .eq('section.board_id', board.id)
-                    .order('sort_order', { ascending: false })
+                fetchTasks()
             ])
 
             if (sectionsResult.error || tasksResult.error) return
@@ -76,9 +94,13 @@ export function useSectionGrid(board: Board, initialSections: SectionWithTasks[]
                 ...task,
                 creator_name: task.creator?.name,
                 assignee_name: task.assignee?.name,
+                comment_count: Array.isArray(task.task_comment)
+                    ? task.task_comment[0]?.count
+                    : undefined,
                 creator: undefined,
                 assignee: undefined,
                 section: undefined,
+                task_comment: undefined,
             }))
 
             const tasksBySection = tasks.reduce((acc, task) => {
@@ -128,6 +150,19 @@ export function useSectionGrid(board: Board, initialSections: SectionWithTasks[]
                     setTimeout(() => fetchSectionsWithTasks(), 100)
                 }
             })
+            .on('postgres_changes', {
+                event: '*',
+                schema: 'public',
+                table: 'task_comment',
+            }, (payload) => {
+                // no board_id on task_comment, scope by task id
+                const taskId =
+                    (payload.new as Record<string, unknown>)?.task_id ??
+                    (payload.old as Record<string, unknown>)?.task_id
+                if (taskId && taskIdsRef.current.has(taskId as string)) {
+                    setTimeout(() => fetchSectionsWithTasks(), 100)
+                }
+            })
             .subscribe()
 
         return () => {
@@ -165,6 +200,16 @@ export function useSectionGrid(board: Board, initialSections: SectionWithTasks[]
         startTransition(async () => {
             addOptimisticSection(optimisticSection)
             await createSection(data)
+        })
+    }
+
+    const handleDeleteSection = (sectionId: string) => {
+        const snapshot = sections
+        // optimistic local removal; DELETE events lack board_id, others reconcile on refetch
+        setSections(prev => prev.filter(s => s.id !== sectionId))
+        startTransition(async () => {
+            const result = await deleteSection(sectionId)
+            if (result.error) setSections(snapshot)
         })
     }
 
@@ -318,6 +363,7 @@ export function useSectionGrid(board: Board, initialSections: SectionWithTasks[]
         syncingTaskId,
         sensors,
         handleCreateSection,
+        handleDeleteSection,
         handleCreateTask,
         handleDragStart,
         handleDragOver,

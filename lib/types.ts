@@ -22,6 +22,8 @@ export interface Board {
     org_id: string
     creator_id: string
     creator_name?: string
+    task_count?: number
+    done_count?: number
     created_at: string
     updated_at: string
 }
@@ -47,8 +49,18 @@ export interface Task {
     assignee_name?: string
     due_date?: string
     priority?: string
+    comment_count?: number
     created_at: string
     updated_at: string
+}
+
+export interface TaskComment {
+    id: string
+    task_id: string
+    author_id: string
+    text: string
+    created_at: string
+    author: { id: string; name: string | null; image_url: string | null } | null
 }
 
 export interface SectionWithTasks extends Section {
@@ -115,7 +127,7 @@ export interface ChatMessage {
     author: { id: string; name: string | null; image_url: string | null } | null
 }
 
-/** Pending invitations for the current user (from `getInvitationsByUser`). */
+// from getInvitationsByUser
 export interface UserInvitation {
     id: string
     org_id: string

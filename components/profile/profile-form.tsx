@@ -1,120 +1,103 @@
-'use client'
+"use client"
 
-import { useState } from 'react'
-import { Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { updateProfileSchema } from '@/lib/schemas/profile'
-import { Controller, useForm } from 'react-hook-form'
-import z from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { updateProfile } from '@/lib/services/actions/profile'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { useAuth } from '@/context/auth-context'
+import { useState } from "react"
+import { Controller, useForm } from "react-hook-form"
+import z from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { updateProfileSchema } from "@/lib/schemas/profile"
+import { updateProfile } from "@/lib/services/actions/profile"
+import { useAuth } from "@/context/auth-context"
+import { FlowShell, FlowTitle, FlowLead } from "@/components/ui/flow"
+import { Btn } from "@/components/ui/pm"
+import { PmField, PmInput, InputWrap } from "@/components/ui/pm-form"
+import { Kbd } from "@/components/ui/kbd"
+import { UserAvatar } from "@/components/ui/user-avatar"
+import { IconMail } from "@/components/ui/icons"
 
 type FormData = z.infer<typeof updateProfileSchema>
 
 interface ProfileFormProps {
-    profile: {
-        id: string
-        name: string
-        image_url: string
-    }
-    email: string
+  profile: { id: string; name: string; image_url: string }
+  email: string
 }
 
 const ProfileForm = ({ profile, email }: ProfileFormProps) => {
-    const [isPending, setIsPending] = useState(false)
-    const { profile: authProfile, setProfile } = useAuth()
+  const [isPending, setIsPending] = useState(false)
+  const { profile: authProfile, setProfile } = useAuth()
+  const displayName = authProfile?.name ?? profile.name
 
-    const displayName = authProfile?.name ?? profile.name
-    const displayImage = authProfile?.image_url ?? profile.image_url
+  const form = useForm<FormData>({
+    resolver: zodResolver(updateProfileSchema),
+    defaultValues: { name: profile.name },
+  })
 
-    const form = useForm<FormData>({
-        resolver: zodResolver(updateProfileSchema),
-        defaultValues: {
-            name: profile.name,
-        },
-    })
-
-    async function handleUpdate(data: FormData) {
-        setIsPending(true)
-        try {
-            const result = await updateProfile(data)
-            if (result.error) {
-                form.setError('name', { message: result.message })
-            } else {
-                setProfile(prev => prev ? { ...prev, name: data.name } : prev)
-                form.reset({ name: data.name })
-            }
-        } finally {
-            setIsPending(false)
-        }
+  async function handleUpdate(data: FormData) {
+    setIsPending(true)
+    try {
+      const result = await updateProfile(data)
+      if (result.error) {
+        form.setError("name", { message: result.message })
+      } else {
+        setProfile((prev) => (prev ? { ...prev, name: data.name } : prev))
+        form.reset({ name: data.name })
+      }
+    } finally {
+      setIsPending(false)
     }
+  }
 
-    return (
-        <div className="space-y-6">
-            <Card className="max-w-2xl mx-auto">
-                <CardHeader>
-                    <div className="flex items-center gap-4">
-                        <Avatar className="size-16">
-                            <AvatarImage src={displayImage} alt={displayName} />
-                            <AvatarFallback className="text-lg">
-                                {displayName.charAt(0)}
-                            </AvatarFallback>
-                        </Avatar>
-                        <div>
-                            <CardTitle>{displayName}</CardTitle>
-                            <CardDescription>{email}</CardDescription>
-                        </div>
-                    </div>
-                </CardHeader>
-            </Card>
-
-            <Card className="max-w-2xl mx-auto">
-                <CardHeader>
-                    <CardTitle>Display Name</CardTitle>
-                    <CardDescription>
-                        This is the name that will be visible to other members.
-                    </CardDescription>
-                </CardHeader>
-                <form onSubmit={form.handleSubmit(handleUpdate)}>
-                    <CardContent className="mb-4">
-                        <FieldGroup>
-                            <Controller
-                                control={form.control}
-                                name="name"
-                                render={({ field, fieldState }) => (
-                                    <Field>
-                                        <FieldLabel htmlFor="name">Name</FieldLabel>
-                                        <Input
-                                            {...field}
-                                            id={field.name}
-                                            placeholder="Enter your name"
-                                            aria-invalid={fieldState.invalid}
-                                        />
-                                        {fieldState.error && <FieldError errors={[fieldState.error]} />}
-                                    </Field>
-                                )}
-                            />
-                        </FieldGroup>
-                    </CardContent>
-                    <CardFooter>
-                        <Button type="submit" disabled={isPending || !form.formState.isDirty} className="w-full">
-                            {isPending ? (
-                                <div className="flex items-center gap-2">
-                                    <Loader2 className="size-4 animate-spin" />
-                                    <span>Saving...</span>
-                                </div>
-                            ) : 'Save'}
-                        </Button>
-                    </CardFooter>
-                </form>
-            </Card>
+  return (
+    <FlowShell back="/">
+      <FlowTitle>Your profile</FlowTitle>
+      <FlowLead>Update how you appear across Carlo.</FlowLead>
+      <form
+        onSubmit={form.handleSubmit(handleUpdate)}
+        className="flex flex-col gap-[15px] mt-[22px]"
+      >
+        <div className="flex items-center gap-[14px]">
+          <UserAvatar
+            name={displayName}
+            hueKey={profile.id}
+            size={56}
+            className="text-[18px]"
+          />
         </div>
-    )
+        <Controller
+          control={form.control}
+          name="name"
+          render={({ field, fieldState }) => (
+            <PmField label="Display name" hint={fieldState.error?.message}>
+              <PmInput
+                {...field}
+                placeholder="Your name"
+                aria-invalid={fieldState.invalid}
+              />
+            </PmField>
+          )}
+        />
+        <PmField
+          label={
+            <>
+              Email <Kbd>read only</Kbd>
+            </>
+          }
+          hint="Email is your sign-in identity and cannot be changed here."
+        >
+          <InputWrap icon={<IconMail />}>
+            <PmInput mono value={email} disabled className="opacity-70" />
+          </InputWrap>
+        </PmField>
+        <div className="flex gap-[9px]">
+          <Btn type="submit" disabled={isPending || !form.formState.isDirty}>
+            {isPending ? "Saving..." : "Save changes"}
+          </Btn>
+          <Btn asChild variant="ghost" type="button">
+            <a href="/">Cancel</a>
+          </Btn>
+        </div>
+      </form>
+    </FlowShell>
+  )
 }
 
 export default ProfileForm

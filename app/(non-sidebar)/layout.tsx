@@ -1,15 +1,8 @@
-import Navbar from '@/components/navbar'
-import React from 'react'
+import React from "react"
 
-const layout = ({
-    children
-}: {children: React.ReactNode}) => {
-    return (
-        <main>
-            <Navbar />
-            {children}
-        </main>
-    )
+// pass-through: these flows render their own FlowShell
+const layout = ({ children }: { children: React.ReactNode }) => {
+  return <>{children}</>
 }
 
 export default layout

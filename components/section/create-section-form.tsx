@@ -1,113 +1,104 @@
-'use client'
-import { useState } from 'react'
-import { Loader2, PlusIcon } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { 
-    Dialog, 
-    DialogClose, 
-    DialogContent, 
-    DialogDescription, 
-    DialogFooter, 
-    DialogHeader, 
-    DialogTitle, 
-    DialogTrigger 
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { createSectionSchema } from '@/lib/schemas/section'
-import { Controller, useForm } from 'react-hook-form'
-import z from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Field, FieldError, FieldLabel } from '@/components/ui/field'
+"use client"
+
+import { useState } from "react"
+import { Controller, useForm } from "react-hook-form"
+import z from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { createSectionSchema } from "@/lib/schemas/section"
+import { Btn } from "@/components/ui/pm"
+import { PmDialog, PmField, PmInput } from "@/components/ui/pm-form"
+import { IconPlus } from "@/components/ui/icons"
 
 type FormData = z.infer<typeof createSectionSchema>
 
 interface CreateSectionFormProps {
-    boardId: string
-    creatorId: string
-    sortOrder: number
-    onSubmit: (data: FormData) => void
-    isPending?: boolean
+  boardId: string
+  creatorId: string
+  sortOrder: number
+  onSubmit: (data: FormData) => void
+  isPending?: boolean
+  trigger?: React.ReactNode
 }
 
-const CreateSectionForm = ({ 
-    boardId, 
-    creatorId,
-    sortOrder,
-    onSubmit,
-    isPending = false
+const CreateSectionForm = ({
+  boardId,
+  creatorId,
+  sortOrder,
+  onSubmit,
+  isPending = false,
+  trigger,
 }: CreateSectionFormProps) => {
-    const [open, setOpen] = useState(false)
-    
-    const form = useForm<FormData>({
-        resolver: zodResolver(createSectionSchema),
-        defaultValues: {
-            title: '',
-            board_id: boardId,
-            creator_id: creatorId,
-            sort_order: sortOrder,
-        },
+  const [open, setOpen] = useState(false)
+
+  const form = useForm<FormData>({
+    resolver: zodResolver(createSectionSchema),
+    defaultValues: {
+      title: "",
+      board_id: boardId,
+      creator_id: creatorId,
+      sort_order: sortOrder,
+    },
+  })
+
+  function handleCreateSection(data: FormData) {
+    onSubmit(data)
+    setOpen(false)
+    form.reset({
+      title: "",
+      board_id: boardId,
+      creator_id: creatorId,
+      sort_order: sortOrder + 1,
     })
+  }
 
-    function handleCreateSection(data: FormData) {
-        onSubmit(data)
-        setOpen(false)
-        form.reset({
-            title: '',
-            board_id: boardId,
-            creator_id: creatorId,
-            sort_order: sortOrder + 1,
-        })
-    }
-
-    return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button size={'sm'}>
-                    <PlusIcon className='size-4' />
-                    New Section
-                </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>Create Section</DialogTitle>
-                    <DialogDescription>
-                        Add a new section to organize your tasks. Click create when you&apos;re done.
-                    </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={form.handleSubmit(handleCreateSection)} className='grid gap-4'>
-                    <Controller
-                        control={form.control}
-                        name="title"
-                        render={({ field, fieldState }) => (
-                            <Field>
-                                <FieldLabel htmlFor="title">Section Title</FieldLabel>
-                                <Input 
-                                    {...field} 
-                                    id={field.name} 
-                                    placeholder='Enter section title'
-                                    aria-invalid={fieldState.invalid} 
-                                />
-                                {fieldState.error && <FieldError errors={[fieldState.error]} />}
-                            </Field>
-                        )}
-                    />
-                    <DialogFooter>
-                        <DialogClose asChild>
-                            <Button type='button' variant="outline">Cancel</Button>
-                        </DialogClose>
-                        <Button type="submit" disabled={isPending}>
-                            {isPending ? (
-                                <div className="flex items-center gap-2">
-                                    <Loader2 className="size-4 animate-spin" />
-                                    <span>Creating Section...</span>
-                                </div>
-                            ) : 'Create Section'}
-                        </Button>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
-    )
+  return (
+    <PmDialog
+      open={open}
+      onOpenChange={setOpen}
+      title="New section"
+      description="Add a section to this board."
+      trigger={
+        trigger ?? (
+          <Btn variant="ghost" size="sm">
+            <IconPlus />
+            New section
+          </Btn>
+        )
+      }
+      footer={
+        <>
+          <span className="flex-1" />
+          <Btn variant="ghost" type="button" onClick={() => setOpen(false)}>
+            Cancel
+          </Btn>
+          <Btn type="submit" form="create-section-form" disabled={isPending}>
+            {isPending ? "Creating..." : "Create section"}
+          </Btn>
+        </>
+      }
+    >
+      <form
+        id="create-section-form"
+        onSubmit={form.handleSubmit(handleCreateSection)}
+      >
+        <Controller
+          control={form.control}
+          name="title"
+          render={({ field, fieldState }) => (
+            <PmField label="Section name" htmlFor="title">
+              <PmInput
+                {...field}
+                id="title"
+                autoFocus
+                placeholder="e.g. In Review"
+                aria-invalid={fieldState.invalid}
+              />
+            </PmField>
+          )}
+        />
+      </form>
+    </PmDialog>
+  )
 }
 
 export default CreateSectionForm

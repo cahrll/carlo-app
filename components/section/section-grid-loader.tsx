@@ -1,48 +1,22 @@
-import React from 'react'
-import { Card, CardContent, CardHeader } from '../ui/card'
-import { Skeleton } from '../ui/skeleton'
+import { Skeleton } from "../ui/skeleton"
+
+const Col = () => (
+  <div className="flex-[0_0_256px] bg-bg2 border border-line rounded-lg p-[11px] flex flex-col gap-2">
+    <Skeleton className="h-4 w-1/2" />
+    <Skeleton className="h-[68px] w-full rounded-md" />
+    <Skeleton className="h-[68px] w-full rounded-md" />
+  </div>
+)
 
 const SectionGridLoader = () => {
-    return (
-        <div className='mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-start'>
-            <Card className="w-full">
-                <CardHeader>
-                    <Skeleton className="h-4 w-2/3" />
-                    <Skeleton className="h-4 w-1/2" />
-                </CardHeader>
-                <CardContent>
-                    <Skeleton className="aspect-video w-full" />
-                </CardContent>
-            </Card>
-            <Card className="w-full">
-                <CardHeader>
-                    <Skeleton className="h-4 w-2/3" />
-                    <Skeleton className="h-4 w-1/2" />
-                </CardHeader>
-                <CardContent>
-                    <Skeleton className="aspect-video w-full" />
-                </CardContent>
-            </Card>
-            <Card className="w-full">
-                <CardHeader>
-                    <Skeleton className="h-4 w-2/3" />
-                    <Skeleton className="h-4 w-1/2" />
-                </CardHeader>
-                <CardContent>
-                    <Skeleton className="aspect-video w-full" />
-                </CardContent>
-            </Card>
-            <Card className="w-full">
-                <CardHeader>
-                    <Skeleton className="h-4 w-2/3" />
-                    <Skeleton className="h-4 w-1/2" />
-                </CardHeader>
-                <CardContent>
-                    <Skeleton className="aspect-video w-full" />
-                </CardContent>
-            </Card>
-        </div>
-    )
+  return (
+    <div className="flex gap-[13px] p-[16px_18px] flex-1 min-h-0 overflow-x-auto items-start">
+      <Col />
+      <Col />
+      <Col />
+      <Col />
+    </div>
+  )
 }
 
 export default SectionGridLoader
