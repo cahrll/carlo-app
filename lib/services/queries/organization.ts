@@ -1,3 +1,4 @@
+import { cache } from "react"
 import { getCurrentUser } from "../getCurrentUser"
 import { createClient } from "@/lib/server"
 
@@ -22,7 +23,7 @@ export async function getOrganizations() {
     return { error: false, data}
 }
 
-export async function getOrganizationById(id: string) {
+export const getOrganizationById = cache(async (id: string) => {
     const user = await getCurrentUser()
 
     if(!user) {
@@ -39,10 +40,10 @@ export async function getOrganizationById(id: string) {
         .select('*')
         .eq('id', id)
         .single()
-        
+
     if(error) {
         return { error: true, message: 'Failed to get organization'}
     }
 
     return { error: false, data}
-}
+})

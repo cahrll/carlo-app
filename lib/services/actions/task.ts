@@ -125,16 +125,18 @@ export async function moveTask(unsafeData: z.infer<typeof moveTaskSchema>) {
     }
 
     const reorderSection = async (sectionId: string, taskIds: string[]) => {
-        for (let i = 0; i < taskIds.length; i++) {
-            const { error } = await supabase
-                .from('task')
-                .update({ sort_order: taskIds.length - 1 - i })
-                .eq('id', taskIds[i])
-                .eq('section_id', sectionId)
+        const results = await Promise.all(
+            taskIds.map((id, i) =>
+                supabase
+                    .from('task')
+                    .update({ sort_order: taskIds.length - 1 - i })
+                    .eq('id', id)
+                    .eq('section_id', sectionId)
+            )
+        )
 
-            if (error) {
-                return { error: true, message: 'Failed to reorder tasks' }
-            }
+        if (results.some((r) => r.error)) {
+            return { error: true, message: 'Failed to reorder tasks' }
         }
         return null
     }

@@ -1,36 +1,38 @@
+import { cache } from "react"
 import { createClient } from "@/lib/server"
 import { getCurrentUser } from "../getCurrentUser"
 
 export type ViewerRole = "owner" | "admin" | "member"
 
-export async function getViewerRole(
+export const getViewerRole = cache(async (
     organizationId: string
-): Promise<ViewerRole | null> {
+): Promise<ViewerRole | null> => {
     const user = await getCurrentUser()
     if (!user || !organizationId.trim()) return null
 
     const supabase = await createClient()
 
-    const { data: org } = await supabase
-        .from('organization')
-        .select('owner_id')
-        .eq('id', organizationId)
-        .single()
+    const [{ data: org }, { data: membership }] = await Promise.all([
+        supabase
+            .from('organization')
+            .select('owner_id')
+            .eq('id', organizationId)
+            .single(),
+        supabase
+            .from('organization_member')
+            .select('role')
+            .eq('org_id', organizationId)
+            .eq('member_id', user.id)
+            .eq('status', 'accepted')
+            .single(),
+    ])
 
     if (org?.owner_id === user.id) return 'owner'
 
-    const { data: membership } = await supabase
-        .from('organization_member')
-        .select('role')
-        .eq('org_id', organizationId)
-        .eq('member_id', user.id)
-        .eq('status', 'accepted')
-        .single()
-
     return (membership?.role as ViewerRole) ?? null
-}
+})
 
-export async function getMembers(organizationId: string) {
+export const getMembers = cache(async (organizationId: string) => {
     const user = await getCurrentUser()
 
     if (!user) {
@@ -53,5 +55,5 @@ export async function getMembers(organizationId: string) {
     }
 
     return { error: false, data }
-}
+})
 

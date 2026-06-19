@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { getCurrentUser } from "../getCurrentUser"
+import { getViewerRole } from "@/lib/services/queries/member"
 import { createClient } from "@/lib/server"
 import { createInvitationSchema } from "@/lib/schemas/invitation"
 import z from "zod"
@@ -20,6 +21,11 @@ export async function createInvitation(organizationId: string, unsafeData: z.inf
 
     if (!success) {
         return { error: true, message: 'Invalid invitation data' }
+    }
+
+    const role = await getViewerRole(organizationId)
+    if (role !== 'owner' && role !== 'admin') {
+        return { error: true, message: 'You do not have permission to invite members' }
     }
 
     const supabase = await createClient()

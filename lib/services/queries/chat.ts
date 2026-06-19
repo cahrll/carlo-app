@@ -1,7 +1,8 @@
+import { cache } from "react"
 import { createClient } from "@/lib/server"
 import { getCurrentUser } from "../getCurrentUser"
 
-export async function getChatRooms(orgId: string) {
+export const getChatRooms = cache(async (orgId: string) => {
     const user = await getCurrentUser()
 
     if (!user) {
@@ -70,7 +71,7 @@ export async function getChatRooms(orgId: string) {
     })
 
     return { error: false, data: roomsWithLatest }
-}
+})
 
 export async function getMessages(chatRoomId: string) {
     const user = await getCurrentUser()
