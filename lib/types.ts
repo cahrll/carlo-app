@@ -138,8 +138,9 @@ export interface UserInvitation {
     created_at: string
     accepted_at: string | null
     expires_at: string | null
+    // null when org RLS hides the org from a not-yet-member invitee
     organization: {
         id: string
         name: string
-    }
+    } | null
 }

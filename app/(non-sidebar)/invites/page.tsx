@@ -35,7 +35,9 @@ const InvitesPage = async () => {
         </div>
       ) : (
         <div className="flex flex-col gap-[10px] mt-5">
-          {list.map((inv) => (
+          {list.map((inv) => {
+            const orgName = inv.organization?.name ?? "An organization"
+            return (
             <div
               key={inv.id}
               className="flex items-center gap-[13px] p-[14px] border border-line rounded-lg bg-bg2 max-nav:flex-wrap"
@@ -44,11 +46,11 @@ const InvitesPage = async () => {
                 className="grid place-items-center size-10 rounded-[9px] font-bold text-[15px] text-acc-on shrink-0"
                 style={{ background: `oklch(0.68 0.12 ${nameHue(inv.org_id)})` }}
               >
-                {inv.organization.name.charAt(0).toUpperCase()}
+                {orgName.charAt(0).toUpperCase()}
               </span>
               <div className="flex-1 min-w-0">
                 <div className="font-semibold text-[14px] truncate">
-                  {inv.organization.name}
+                  {orgName}
                 </div>
                 <div className="font-mono text-[11px] text-faint mt-[2px]">
                   invited as {inv.role}
@@ -57,7 +59,8 @@ const InvitesPage = async () => {
               </div>
               <InvitationActions invitationId={inv.id} />
             </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </FlowShell>
