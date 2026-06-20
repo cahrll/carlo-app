@@ -1,8 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { Btn } from "@/components/ui/pm"
-import { PmDialog, PmInput } from "@/components/ui/pm-form"
+import { Btn } from "@/components/common/pm"
+import { PmDialog, PmInput } from "@/components/common/pm-form"
 
 export function ConfirmDialog({
   trigger,

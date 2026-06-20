@@ -7,8 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Board } from "@/lib/types"
 import { updateBoardSchema } from "@/lib/schemas/board"
 import { updateBoard } from "@/lib/services/actions/board"
-import { Btn } from "@/components/ui/pm"
-import { PmDialog, PmField, PmInput } from "@/components/ui/pm-form"
+import { Btn } from "@/components/common/pm"
+import { PmDialog, PmField, PmInput } from "@/components/common/pm-form"
 
 type FormData = z.infer<typeof updateBoardSchema>
 

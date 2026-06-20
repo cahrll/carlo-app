@@ -9,10 +9,10 @@ import { cn } from "@/lib/utils"
 import { createInvitationSchema } from "@/lib/schemas/invitation"
 import { createInvitation } from "@/lib/services/actions/invitation"
 import { UserProfile } from "@/lib/types"
-import { Btn, Pill, RoleBadge } from "@/components/ui/pm"
-import { PmDialog, PmField, PmInput, InputWrap } from "@/components/ui/pm-form"
-import { UserAvatar } from "@/components/ui/user-avatar"
-import { IconMail, IconSend } from "@/components/ui/icons"
+import { Btn, Pill, RoleBadge } from "@/components/common/pm"
+import { PmDialog, PmField, PmInput, InputWrap } from "@/components/common/pm-form"
+import { UserAvatar } from "@/components/common/user-avatar"
+import { IconMail, IconSend } from "@/components/common/icons"
 
 type FormData = z.infer<typeof createInvitationSchema>
 

@@ -17,11 +17,11 @@ import { sendMessage, deleteChatRoom } from "@/lib/services/actions/chat"
 import { useRealtimeChat } from "@/hooks/use-realtime-chat"
 import type { ChatMessage, Member } from "@/lib/types"
 import AddMembersDialog from "./add-members-dialog"
-import { UserAvatar, AvatarStack } from "@/components/ui/user-avatar"
-import { DotPulse, IconBtn } from "@/components/ui/pm"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { Kbd } from "@/components/ui/kbd"
-import { IconLeft, IconSend, IconTrash } from "@/components/ui/icons"
+import { UserAvatar, AvatarStack } from "@/components/common/user-avatar"
+import { DotPulse, IconBtn } from "@/components/common/pm"
+import { ConfirmDialog } from "@/components/common/confirm-dialog"
+import { Kbd } from "@/components/common/kbd"
+import { IconLeft, IconSend, IconTrash } from "@/components/common/icons"
 
 interface ChatViewProps {
   roomId: string

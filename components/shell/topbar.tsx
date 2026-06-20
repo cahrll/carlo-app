@@ -3,8 +3,8 @@
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { IconMenu, IconSearch } from "@/components/ui/icons"
-import { Kbd } from "@/components/ui/kbd"
+import { IconMenu, IconSearch } from "@/components/common/icons"
+import { Kbd } from "@/components/common/kbd"
 import type { Board } from "@/lib/types"
 
 export function Topbar({

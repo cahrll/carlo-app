@@ -5,9 +5,9 @@ import { Controller, useForm } from "react-hook-form"
 import z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { createSectionSchema } from "@/lib/schemas/section"
-import { Btn } from "@/components/ui/pm"
-import { PmDialog, PmField, PmInput } from "@/components/ui/pm-form"
-import { IconPlus } from "@/components/ui/icons"
+import { Btn } from "@/components/common/pm"
+import { PmDialog, PmField, PmInput } from "@/components/common/pm-form"
+import { IconPlus } from "@/components/common/icons"
 
 type FormData = z.infer<typeof createSectionSchema>
 

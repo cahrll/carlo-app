@@ -18,9 +18,9 @@ import {
   SheetDescription,
   SheetTitle,
 } from "@/components/ui/sheet"
-import { Btn, IconBtn, Pill } from "@/components/ui/pm"
-import { PmInput, PmTextarea, Segmented } from "@/components/ui/pm-form"
-import { UserAvatar } from "@/components/ui/user-avatar"
+import { Btn, IconBtn, Pill } from "@/components/common/pm"
+import { PmInput, PmTextarea, Segmented } from "@/components/common/pm-form"
+import { UserAvatar } from "@/components/common/user-avatar"
 import { AssigneeSelect } from "./assignee-select"
 import {
   IconX,
@@ -30,7 +30,7 @@ import {
   IconClock,
   IconSend,
   IconPencil,
-} from "@/components/ui/icons"
+} from "@/components/common/icons"
 
 type TaskFormData = z.infer<typeof updateTaskSchema>
 

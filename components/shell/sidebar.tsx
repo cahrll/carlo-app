@@ -5,7 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/context/auth-context"
-import { UserAvatar } from "@/components/ui/user-avatar"
+import { UserAvatar } from "@/components/common/user-avatar"
 import {
   IconBoard,
   IconInbox,
@@ -15,8 +15,8 @@ import {
   IconDots,
   IconUser,
   IconLogout,
-} from "@/components/ui/icons"
-import { IconBtn } from "@/components/ui/pm"
+} from "@/components/common/icons"
+import { IconBtn } from "@/components/common/pm"
 import type { Board, Organization } from "@/lib/types"
 
 function NavLink({

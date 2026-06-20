@@ -6,8 +6,8 @@ import Link from "next/link"
 import { cn, timeAgo } from "@/lib/utils"
 import { useOrg } from "@/context/org-context"
 import CreateRoomDialog from "./create-room-dialog"
-import { IconHash, IconSearch } from "@/components/ui/icons"
-import { InputWrap, PmInput } from "@/components/ui/pm-form"
+import { IconHash, IconSearch } from "@/components/common/icons"
+import { InputWrap, PmInput } from "@/components/common/pm-form"
 import type { ChatRoomWithLatest, Member } from "@/lib/types"
 
 interface ConversationListProps {

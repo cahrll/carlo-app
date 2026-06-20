@@ -1,5 +1,5 @@
-import { PmEmpty } from "@/components/ui/pm-empty"
-import { IconInbox } from "@/components/ui/icons"
+import { PmEmpty } from "@/components/common/pm-empty"
+import { IconInbox } from "@/components/common/icons"
 
 const InboxPage = () => {
   return (

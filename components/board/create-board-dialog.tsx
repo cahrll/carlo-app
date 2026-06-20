@@ -8,9 +8,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Board, Organization } from "@/lib/types"
 import { createBoardSchema } from "@/lib/schemas/board"
 import { createBoardWithSections } from "@/lib/services/actions/board"
-import { Btn } from "@/components/ui/pm"
-import { PmDialog, PmField, PmInput, PmTextarea } from "@/components/ui/pm-form"
-import { IconPlus } from "@/components/ui/icons"
+import { Btn } from "@/components/common/pm"
+import { PmDialog, PmField, PmInput, PmTextarea } from "@/components/common/pm-form"
+import { IconPlus } from "@/components/common/icons"
 
 type FormData = z.infer<typeof createBoardSchema>
 

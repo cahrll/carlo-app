@@ -1,8 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { IconBtn } from "@/components/ui/pm"
-import { IconUser, IconMail, IconLogout } from "@/components/ui/icons"
+import { IconBtn } from "@/components/common/pm"
+import { IconUser, IconMail, IconLogout } from "@/components/common/icons"
 import { useAuth } from "@/context/auth-context"
 
 // account shortcuts shown beside the flow-header version label

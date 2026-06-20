@@ -7,9 +7,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { updateSectionSchema } from "@/lib/schemas/section"
 import { updateSection } from "@/lib/services/actions/section"
 import { Section } from "@/lib/types"
-import { Btn, IconBtn } from "@/components/ui/pm"
-import { PmDialog, PmField, PmInput } from "@/components/ui/pm-form"
-import { IconDots } from "@/components/ui/icons"
+import { Btn, IconBtn } from "@/components/common/pm"
+import { PmDialog, PmField, PmInput } from "@/components/common/pm-form"
+import { IconDots } from "@/components/common/icons"
 
 type FormData = z.infer<typeof updateSectionSchema>
 

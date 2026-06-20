@@ -20,7 +20,7 @@ import {
   IconMail,
   IconSearch,
   IconHash,
-} from "@/components/ui/icons"
+} from "@/components/common/icons"
 import { useCommandStore } from "@/components/shell/command-store"
 import type { Board, ChatRoomWithLatest } from "@/lib/types"
 

@@ -2,10 +2,10 @@
 
 import { useState } from "react"
 import { supabase } from "@/lib/client"
-import { FlowShell, FlowTitle, FlowLead } from "@/components/ui/flow"
-import { Btn } from "@/components/ui/pm"
-import { PmField, PmInput, InputWrap } from "@/components/ui/pm-form"
-import { IconMail, IconRight } from "@/components/ui/icons"
+import { FlowShell, FlowTitle, FlowLead } from "@/components/common/flow"
+import { Btn } from "@/components/common/pm"
+import { PmField, PmInput, InputWrap } from "@/components/common/pm-form"
+import { IconMail, IconRight } from "@/components/common/icons"
 
 const LoginForm = () => {
   const [email, setEmail] = useState("")

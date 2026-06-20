@@ -1,8 +1,8 @@
 import * as React from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-import { IconLeft } from "@/components/ui/icons"
-import { FlowAccountActions } from "@/components/ui/flow-account-actions"
+import { IconLeft } from "@/components/common/icons"
+import { FlowAccountActions } from "@/components/common/flow-account-actions"
 
 export function FlowShell({
   back,

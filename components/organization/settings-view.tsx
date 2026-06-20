@@ -9,10 +9,10 @@ import {
   updateOrganization,
   deleteOrganization,
 } from "@/lib/services/actions/organization"
-import { Btn } from "@/components/ui/pm"
-import { PmInput } from "@/components/ui/pm-form"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { Content } from "@/components/ui/page"
+import { Btn } from "@/components/common/pm"
+import { PmInput } from "@/components/common/pm-form"
+import { ConfirmDialog } from "@/components/common/confirm-dialog"
+import { Content } from "@/components/common/page"
 
 function SetGroup({
   title,

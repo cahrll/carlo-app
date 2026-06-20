@@ -4,9 +4,9 @@ import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { addChatRoomMembers } from "@/lib/services/actions/chat"
 import type { Member } from "@/lib/types"
-import { Btn } from "@/components/ui/pm"
-import { PmDialog } from "@/components/ui/pm-form"
-import { IconPlus } from "@/components/ui/icons"
+import { Btn } from "@/components/common/pm"
+import { PmDialog } from "@/components/common/pm-form"
+import { IconPlus } from "@/components/common/icons"
 import { MemberPicker } from "./member-picker"
 
 interface AddMembersDialogProps {

@@ -2,11 +2,11 @@
 
 import z from "zod"
 import { createSectionSchema } from "@/lib/schemas/section"
-import { PmEmpty } from "@/components/ui/pm-empty"
-import { Btn } from "@/components/ui/pm"
-import { IconBoard, IconPlus } from "@/components/ui/icons"
+import { PmEmpty } from "@/components/common/pm-empty"
+import { Btn } from "@/components/common/pm"
+import { IconBoard, IconPlus } from "@/components/common/icons"
 import CreateSectionForm from "./create-section-form"
-import { Kbd } from "@/components/ui/kbd"
+import { Kbd } from "@/components/common/kbd"
 
 interface SectionEmptyProps {
   boardId: string

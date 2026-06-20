@@ -3,11 +3,11 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { setupProfile } from "@/lib/services/actions/profile"
-import { FlowShell, FlowTitle, FlowLead } from "@/components/ui/flow"
-import { Btn } from "@/components/ui/pm"
-import { PmField, PmInput } from "@/components/ui/pm-form"
-import { UserAvatar } from "@/components/ui/user-avatar"
-import { IconRight } from "@/components/ui/icons"
+import { FlowShell, FlowTitle, FlowLead } from "@/components/common/flow"
+import { Btn } from "@/components/common/pm"
+import { PmField, PmInput } from "@/components/common/pm-form"
+import { UserAvatar } from "@/components/common/user-avatar"
+import { IconRight } from "@/components/common/icons"
 
 const ProfileSetupForm = () => {
   const [name, setName] = useState("")

@@ -1,6 +1,6 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { IconX } from "@/components/ui/icons"
+import { IconX } from "@/components/common/icons"
 import {
   Dialog,
   DialogContent,

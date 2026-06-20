@@ -1,9 +1,9 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { UserAvatar } from "@/components/ui/user-avatar"
-import { InputWrap, PmInput } from "@/components/ui/pm-form"
-import { IconSearch, IconCheck } from "@/components/ui/icons"
+import { UserAvatar } from "@/components/common/user-avatar"
+import { InputWrap, PmInput } from "@/components/common/pm-form"
+import { IconSearch, IconCheck } from "@/components/common/icons"
 import type { Member } from "@/lib/types"
 
 export function MemberPicker({

@@ -6,16 +6,16 @@ import z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { createTaskSchema } from "@/lib/schemas/task"
 import { Member } from "@/lib/types"
-import { Btn } from "@/components/ui/pm"
+import { Btn } from "@/components/common/pm"
 import {
   PmDialog,
   PmField,
   PmInput,
   PmTextarea,
   Segmented,
-} from "@/components/ui/pm-form"
-import { Kbd } from "@/components/ui/kbd"
-import { IconPlus, IconFlag, IconCal, IconUser } from "@/components/ui/icons"
+} from "@/components/common/pm-form"
+import { Kbd } from "@/components/common/kbd"
+import { IconPlus, IconFlag, IconCal, IconUser } from "@/components/common/icons"
 import { AssigneeSelect } from "./assignee-select"
 
 type FormData = z.infer<typeof createTaskSchema>

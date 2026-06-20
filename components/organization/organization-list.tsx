@@ -2,11 +2,11 @@
 
 import Link from "next/link"
 import { Organization } from "@/lib/types"
-import { FlowShell, FlowTitle, FlowLead } from "@/components/ui/flow"
-import { Btn, RoleBadge } from "@/components/ui/pm"
-import { PmEmpty } from "@/components/ui/pm-empty"
-import { nameHue } from "@/components/ui/user-avatar"
-import { IconPlus, IconRight, IconBell } from "@/components/ui/icons"
+import { FlowShell, FlowTitle, FlowLead } from "@/components/common/flow"
+import { Btn, RoleBadge } from "@/components/common/pm"
+import { PmEmpty } from "@/components/common/pm-empty"
+import { nameHue } from "@/components/common/user-avatar"
+import { IconPlus, IconRight, IconBell } from "@/components/common/icons"
 
 const OrganizationList = ({
   organizations,

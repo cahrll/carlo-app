@@ -5,8 +5,8 @@ import { Task } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { formatShort, isDueSoon, shortId } from "@/lib/utils"
 import { priorityMeta } from "@/lib/board-ui"
-import { UserAvatar } from "@/components/ui/user-avatar"
-import { IconCheck, IconCal, IconChat, IconUser } from "@/components/ui/icons"
+import { UserAvatar } from "@/components/common/user-avatar"
+import { IconCheck, IconCal, IconChat, IconUser } from "@/components/common/icons"
 
 type Props = {
   task: Task

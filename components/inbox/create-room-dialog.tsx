@@ -8,9 +8,9 @@ import { useRouter } from "next/navigation"
 import { createChatRoom } from "@/lib/services/actions/chat"
 import { createChatRoomSchema } from "@/lib/schemas/chat"
 import type { Member } from "@/lib/types"
-import { Btn, IconBtn } from "@/components/ui/pm"
-import { PmDialog, PmField, PmInput } from "@/components/ui/pm-form"
-import { IconPlus } from "@/components/ui/icons"
+import { Btn, IconBtn } from "@/components/common/pm"
+import { PmDialog, PmField, PmInput } from "@/components/common/pm-form"
+import { IconPlus } from "@/components/common/icons"
 import { MemberPicker } from "./member-picker"
 
 type FormData = Pick<z.infer<typeof createChatRoomSchema>, "name">

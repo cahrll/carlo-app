@@ -6,10 +6,10 @@ import z from "zod"
 import { useRouter } from "next/navigation"
 import { createOrganizationSchema } from "@/lib/schemas/organizations"
 import { createOrganization } from "@/lib/services/actions/organization"
-import { FlowShell, FlowTitle, FlowLead } from "@/components/ui/flow"
-import { Btn } from "@/components/ui/pm"
-import { PmField, PmInput } from "@/components/ui/pm-form"
-import { IconRight } from "@/components/ui/icons"
+import { FlowShell, FlowTitle, FlowLead } from "@/components/common/flow"
+import { Btn } from "@/components/common/pm"
+import { PmField, PmInput } from "@/components/common/pm-form"
+import { IconRight } from "@/components/common/icons"
 
 type FormData = z.infer<typeof createOrganizationSchema>
 

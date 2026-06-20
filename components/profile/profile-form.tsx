@@ -7,12 +7,12 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { updateProfileSchema } from "@/lib/schemas/profile"
 import { updateProfile } from "@/lib/services/actions/profile"
 import { useAuth } from "@/context/auth-context"
-import { FlowShell, FlowTitle, FlowLead } from "@/components/ui/flow"
-import { Btn } from "@/components/ui/pm"
-import { PmField, PmInput, InputWrap } from "@/components/ui/pm-form"
-import { Kbd } from "@/components/ui/kbd"
-import { UserAvatar } from "@/components/ui/user-avatar"
-import { IconMail } from "@/components/ui/icons"
+import { FlowShell, FlowTitle, FlowLead } from "@/components/common/flow"
+import { Btn } from "@/components/common/pm"
+import { PmField, PmInput, InputWrap } from "@/components/common/pm-form"
+import { Kbd } from "@/components/common/kbd"
+import { UserAvatar } from "@/components/common/user-avatar"
+import { IconMail } from "@/components/common/icons"
 
 type FormData = z.infer<typeof updateProfileSchema>
 

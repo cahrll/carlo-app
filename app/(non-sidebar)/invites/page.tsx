@@ -4,10 +4,10 @@ import { getInvitationsByUser } from "@/lib/services/queries/invitation"
 import { UserInvitation } from "@/lib/types"
 import { formatShort } from "@/lib/utils"
 import { redirect } from "next/navigation"
-import { FlowShell, FlowTitle, FlowLead } from "@/components/ui/flow"
-import { PmEmpty } from "@/components/ui/pm-empty"
-import { nameHue } from "@/components/ui/user-avatar"
-import { IconMail } from "@/components/ui/icons"
+import { FlowShell, FlowTitle, FlowLead } from "@/components/common/flow"
+import { PmEmpty } from "@/components/common/pm-empty"
+import { nameHue } from "@/components/common/user-avatar"
+import { IconMail } from "@/components/common/icons"
 
 const InvitesPage = async () => {
   const user = await getCurrentUser()
