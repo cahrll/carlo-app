@@ -2,15 +2,18 @@ import * as React from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { IconLeft } from "@/components/ui/icons"
+import { FlowAccountActions } from "@/components/ui/flow-account-actions"
 
 export function FlowShell({
   back,
   children,
   wide,
+  account,
 }: {
   back?: string
   children: React.ReactNode
   wide?: boolean
+  account?: boolean
 }) {
   return (
     <div
@@ -28,6 +31,7 @@ export function FlowShell({
           Carlo
         </div>
         <div className="flex-1" />
+        {account && <FlowAccountActions />}
         {back ? (
           <Link
             href={back}

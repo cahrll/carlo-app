@@ -1,7 +1,8 @@
+import { cache } from "react"
 import { createClient } from "@/lib/server"
 import { getCurrentUser } from "../getCurrentUser"
 
-export async function getProfile(id: string) {
+export const getProfile = cache(async (id: string) => {
     const user = await getCurrentUser()
 
     if(!user) {
@@ -19,13 +20,13 @@ export async function getProfile(id: string) {
     .select("*")
     .eq("id", id)
     .single()
-    
+
     if(error){
         return {error: true, message: 'Failed to get profile details'}
     }
 
     return {error: false, data}
-}
+})
 
 export async function getAllProfiles() {
     const user = await getCurrentUser()

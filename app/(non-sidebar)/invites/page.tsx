@@ -17,7 +17,7 @@ const InvitesPage = async () => {
   const list = (invitations as UserInvitation[] | undefined) ?? []
 
   return (
-    <FlowShell wide back="/">
+    <FlowShell wide back="/" account>
       <FlowTitle>Pending invitations</FlowTitle>
       <FlowLead>Teams that have invited you to collaborate.</FlowLead>
 

@@ -47,7 +47,7 @@ const ProfileForm = ({ profile, email }: ProfileFormProps) => {
   }
 
   return (
-    <FlowShell back="/">
+    <FlowShell back="/" account>
       <FlowTitle>Your profile</FlowTitle>
       <FlowLead>Update how you appear across Carlo.</FlowLead>
       <form

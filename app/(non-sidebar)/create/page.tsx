@@ -27,7 +27,7 @@ const CreatePage = () => {
   }
 
   return (
-    <FlowShell back="/">
+    <FlowShell back="/" account>
       <FlowTitle>Create organization</FlowTitle>
       <FlowLead>A workspace for your team&apos;s boards, members, and chat.</FlowLead>
       <form

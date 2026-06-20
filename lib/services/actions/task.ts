@@ -3,6 +3,8 @@ import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/server"
 import { getCurrentUser } from "../getCurrentUser"
 import { createTaskSchema, updateTaskSchema, moveTaskSchema } from "@/lib/schemas/task"
+import { getViewerRole } from "@/lib/services/queries/member"
+import { canAccess, orgIdForSection, orgIdForTask } from "@/lib/services/authz"
 import z from "zod"
 
 const BOARD_PATH = '/organization/[orgId]/board/[boardId]'
@@ -17,6 +19,15 @@ export async function createTask(unsafeData: z.infer<typeof createTaskSchema>) {
 
     if(!success) {
         return { error: true, message: 'Invalid task data'}
+    }
+
+    const orgId = await orgIdForSection(data.section_id)
+    if (!orgId) {
+        return { error: true, message: 'Section not found' }
+    }
+    const role = await getViewerRole(orgId)
+    if (!canAccess(role)) {
+        return { error: true, message: 'You do not have access to this board' }
     }
 
     const supabase = await createClient()
@@ -68,6 +79,15 @@ export async function updateTask(id: string, unsafeData: z.infer<typeof updateTa
         return { error: true, message: 'Invalid task data' }
     }
 
+    const orgId = await orgIdForTask(id)
+    if (!orgId) {
+        return { error: true, message: 'Task not found' }
+    }
+    const role = await getViewerRole(orgId)
+    if (!canAccess(role)) {
+        return { error: true, message: 'You do not have access to this task' }
+    }
+
     const supabase = await createClient()
 
     const { data: task, error } = await supabase
@@ -111,6 +131,15 @@ export async function moveTask(unsafeData: z.infer<typeof moveTaskSchema>) {
 
     if (!success) {
         return { error: true, message: 'Invalid move task data' }
+    }
+
+    const orgId = await orgIdForSection(data.targetSectionId)
+    if (!orgId) {
+        return { error: true, message: 'Section not found' }
+    }
+    const role = await getViewerRole(orgId)
+    if (!canAccess(role)) {
+        return { error: true, message: 'You do not have access to this board' }
     }
 
     const supabase = await createClient()

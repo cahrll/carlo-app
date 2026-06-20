@@ -15,9 +15,7 @@ export function OrgProvider({ children }: { children: React.ReactNode }) {
     const [orgId, setOrgId] = useState<string | null>(null);
 
     useEffect(() => {
-        if (params.orgId) {
-            setOrgId(params.orgId as string);
-        }
+        setOrgId((params.orgId as string | undefined) ?? null);
     }, [params.orgId]);
 
     return (

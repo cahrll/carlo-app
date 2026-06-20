@@ -23,7 +23,7 @@ const OrganizationList = ({
 }) => {
   if (error) {
     return (
-      <FlowShell wide>
+      <FlowShell wide account>
         <FlowTitle>Could not load workspaces</FlowTitle>
         <FlowLead>{message ?? "Please try again later."}</FlowLead>
       </FlowShell>
@@ -31,7 +31,7 @@ const OrganizationList = ({
   }
 
   return (
-    <FlowShell wide>
+    <FlowShell wide account>
       <FlowTitle>Your workspaces</FlowTitle>
       <FlowLead>
         Pick an organization to jump back into, or start a new one.

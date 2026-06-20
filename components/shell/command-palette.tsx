@@ -36,10 +36,12 @@ export function CommandPalette({
   orgId,
   boards,
   rooms,
+  canManage,
 }: {
   orgId: string
   boards: Board[]
   rooms: ChatRoomWithLatest[]
+  canManage?: boolean
 }) {
   const { open, setOpen } = useCommandStore()
   const router = useRouter()
@@ -106,24 +108,28 @@ export function CommandPalette({
         </CommandGroup>
 
         <CommandGroup heading="Actions">
-          <CommandItem onSelect={() => run(`${base}?compose=board`)}>
-            <Tile>
-              <IconBoard />
-            </Tile>
-            <span className="flex-1 min-w-0 font-medium text-[13px]">
-              Create board
-            </span>
-            <CommandShortcut>B</CommandShortcut>
-          </CommandItem>
-          <CommandItem onSelect={() => run(`${base}/members?compose=invite`)}>
-            <Tile>
-              <IconMail />
-            </Tile>
-            <span className="flex-1 min-w-0 font-medium text-[13px]">
-              Invite member
-            </span>
-            <CommandShortcut>I</CommandShortcut>
-          </CommandItem>
+          {canManage && (
+            <CommandItem onSelect={() => run(`${base}?compose=board`)}>
+              <Tile>
+                <IconBoard />
+              </Tile>
+              <span className="flex-1 min-w-0 font-medium text-[13px]">
+                Create board
+              </span>
+              <CommandShortcut>B</CommandShortcut>
+            </CommandItem>
+          )}
+          {canManage && (
+            <CommandItem onSelect={() => run(`${base}/members?compose=invite`)}>
+              <Tile>
+                <IconMail />
+              </Tile>
+              <span className="flex-1 min-w-0 font-medium text-[13px]">
+                Invite member
+              </span>
+              <CommandShortcut>I</CommandShortcut>
+            </CommandItem>
+          )}
           <CommandItem onSelect={() => run(`${base}/inbox?compose=room`)}>
             <Tile>
               <IconHash />

@@ -30,6 +30,7 @@ type BoardContextType = {
   optimisticBoards: Board[]
   organization: Organization
   onBoardCreated: (board: Board) => void
+  canCreate: boolean
 }
 
 const BoardContext = createContext<BoardContextType | null>(null)
@@ -45,7 +46,8 @@ const rowGrid =
   "grid grid-cols-[1.6fr_.8fr_1fr_.9fr_90px] gap-[14px] items-center px-[18px] max-nav:grid-cols-[1fr_90px] max-nav:px-[14px]"
 
 function BoardListContent() {
-  const { optimisticBoards, organization, onBoardCreated } = useBoardContext()
+  const { optimisticBoards, organization, onBoardCreated, canCreate } =
+    useBoardContext()
   const slug = slugify(organization.name)
 
   return (
@@ -53,30 +55,45 @@ function BoardListContent() {
       <PageHeader
         title="Boards"
         sub={`${optimisticBoards.length} boards · ${slug}`}
-        actions={<CreateBoardDialog organization={organization} onBoardCreated={onBoardCreated} />}
+        actions={
+          canCreate ? (
+            <CreateBoardDialog
+              organization={organization}
+              onBoardCreated={onBoardCreated}
+            />
+          ) : undefined
+        }
       />
 
       {optimisticBoards.length === 0 ? (
         <PmEmpty
           icon={<IconBoard />}
           title="No boards yet"
-          description="A board is where your team plans work in sections. Create the first one and Carlo seeds it with To Do, In Progress, Testing, and Done."
+          description={
+            canCreate
+              ? "A board is where your team plans work in sections. Create the first one and Carlo seeds it with To Do, In Progress, Testing, and Done."
+              : "A board is where your team plans work in sections. An owner or admin can create the first one."
+          }
           actions={
-            <CreateBoardDialog
-              organization={organization}
-              onBoardCreated={onBoardCreated}
-              trigger={
-                <Btn>
-                  <IconPlus />
-                  New board
-                </Btn>
-              }
-            />
+            canCreate ? (
+              <CreateBoardDialog
+                organization={organization}
+                onBoardCreated={onBoardCreated}
+                trigger={
+                  <Btn>
+                    <IconPlus />
+                    New board
+                  </Btn>
+                }
+              />
+            ) : undefined
           }
           hint={
-            <span>
-              or press <Kbd>B</Kbd> to create a board
-            </span>
+            canCreate ? (
+              <span>
+                or press <Kbd>B</Kbd> to create a board
+              </span>
+            ) : undefined
           }
         />
       ) : (
@@ -148,9 +165,11 @@ function BoardListContent() {
 function BoardListWithData({
   boardsPromise,
   organization,
+  canCreate,
 }: {
   boardsPromise: Promise<BoardsResponse>
   organization: Organization
+  canCreate: boolean
 }) {
   const { data: serverBoards } = use(boardsPromise)
   const [boards, setBoards] = useState<Board[]>(serverBoards || [])
@@ -234,7 +253,7 @@ function BoardListWithData({
 
   return (
     <BoardContext.Provider
-      value={{ optimisticBoards, organization, onBoardCreated }}
+      value={{ optimisticBoards, organization, onBoardCreated, canCreate }}
     >
       <BoardListContent />
     </BoardContext.Provider>
@@ -244,9 +263,11 @@ function BoardListWithData({
 const BoardList = ({
   organization,
   boardsPromise,
+  canCreate,
 }: {
   organization: Organization
   boardsPromise: Promise<BoardsResponse>
+  canCreate: boolean
 }) => {
   return (
     <Content>
@@ -254,6 +275,7 @@ const BoardList = ({
         <BoardListWithData
           boardsPromise={boardsPromise}
           organization={organization}
+          canCreate={canCreate}
         />
       </Suspense>
     </Content>

@@ -1,6 +1,7 @@
 import { Invitation, Member, UserProfile } from "@/lib/types"
 import { formatShort } from "@/lib/utils"
-import { getMembers } from "@/lib/services/queries/member"
+import { getMembers, getViewerRole } from "@/lib/services/queries/member"
+import { canModify } from "@/lib/services/authz"
 import { getInvitationsByOrg } from "@/lib/services/queries/invitation"
 import { getAllProfiles } from "@/lib/services/queries/profile"
 import { notFound } from "next/navigation"
@@ -29,14 +30,21 @@ const MembersPage = async ({
   params: Promise<{ orgId: string }>
 }) => {
   const { orgId } = await params
-  const [{ data: members, error }, { data: invitations }, { data: profiles }] =
-    await Promise.all([
-      getMembers(orgId),
-      getInvitationsByOrg(orgId),
-      getAllProfiles(),
-    ])
+  const [
+    { data: members, error },
+    { data: invitations },
+    { data: profiles },
+    role,
+  ] = await Promise.all([
+    getMembers(orgId),
+    getInvitationsByOrg(orgId),
+    getAllProfiles(),
+    getViewerRole(orgId),
+  ])
 
   if (error || !members) notFound()
+
+  const canInvite = canModify(role)
 
   const memberList = members as Member[]
   const inviteList = (invitations as Invitation[] | undefined) ?? []
@@ -53,17 +61,19 @@ const MembersPage = async ({
         title="Members"
         sub={`${memberList.length} active · ${inviteList.length} pending`}
         actions={
-          <InviteMemberDialog
-            organizationId={orgId}
-            profiles={(profiles as UserProfile[] | undefined) ?? []}
-            memberIds={[...memberIds]}
-            pendingInvitationEmails={[...pendingEmails]}
-          >
-            <Btn>
-              <IconPlus />
-              Invite member
-            </Btn>
-          </InviteMemberDialog>
+          canInvite ? (
+            <InviteMemberDialog
+              organizationId={orgId}
+              profiles={(profiles as UserProfile[] | undefined) ?? []}
+              memberIds={[...memberIds]}
+              pendingInvitationEmails={[...pendingEmails]}
+            >
+              <Btn>
+                <IconPlus />
+                Invite member
+              </Btn>
+            </InviteMemberDialog>
+          ) : undefined
         }
       />
 

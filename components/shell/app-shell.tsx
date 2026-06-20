@@ -18,6 +18,7 @@ type Props = {
   boards: Board[]
   rooms: ChatRoomWithLatest[]
   orgId: string
+  canManage?: boolean
   children: React.ReactNode
 }
 
@@ -27,6 +28,7 @@ function Inner({
   boards,
   rooms,
   orgId,
+  canManage,
   children,
 }: Props) {
   const [drawerOpen, setDrawerOpen] = React.useState(false)
@@ -59,6 +61,7 @@ function Inner({
         orgId={orgId}
         open={drawerOpen}
         onNavigate={() => setDrawerOpen(false)}
+        canManage={canManage}
       />
 
       {drawerOpen && (
@@ -80,7 +83,7 @@ function Inner({
         <div className="flex-1 min-h-0 flex flex-col">{children}</div>
       </div>
 
-      <CommandPalette orgId={orgId} boards={boards} rooms={rooms} />
+      <CommandPalette orgId={orgId} boards={boards} rooms={rooms} canManage={canManage} />
     </div>
   )
 }

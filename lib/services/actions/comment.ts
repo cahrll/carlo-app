@@ -3,6 +3,8 @@
 import { createClient } from "@/lib/server"
 import { getCurrentUser } from "../getCurrentUser"
 import { addCommentSchema } from "@/lib/schemas/comment"
+import { getViewerRole } from "@/lib/services/queries/member"
+import { canAccess, orgIdForTask } from "@/lib/services/authz"
 import z from "zod"
 
 export async function addComment(unsafeData: z.infer<typeof addCommentSchema>) {
@@ -15,6 +17,15 @@ export async function addComment(unsafeData: z.infer<typeof addCommentSchema>) {
 
   if (!success) {
     return { error: true, message: "Invalid comment data" }
+  }
+
+  const orgId = await orgIdForTask(data.task_id)
+  if (!orgId) {
+    return { error: true, message: "Task not found" }
+  }
+  const role = await getViewerRole(orgId)
+  if (!canAccess(role)) {
+    return { error: true, message: "You do not have access to this task" }
   }
 
   const supabase = await createClient()

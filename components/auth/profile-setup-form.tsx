@@ -43,7 +43,7 @@ const ProfileSetupForm = () => {
           <PmInput
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. Cahrl Loyloy"
+            placeholder="e.g. John Doe"
             required
           />
         </PmField>
