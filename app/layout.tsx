@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/providers";
+import { getCurrentUser } from "@/lib/services/queries/current-user";
+import { getProfile } from "@/lib/services/queries/profile";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -18,11 +20,16 @@ export const metadata: Metadata = {
   description: "Carlo is a project management platform for teams",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const user = await getCurrentUser();
+  const profileResult = user ? await getProfile(user.id) : null;
+  const initialProfile =
+    profileResult && !profileResult.error ? profileResult.data ?? null : null;
+
   return (
     <html
       lang="en"
@@ -30,7 +37,9 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="antialiased">
-        <Providers>{children}</Providers>
+        <Providers initialUser={user} initialProfile={initialProfile}>
+          {children}
+        </Providers>
       </body>
     </html>
   );

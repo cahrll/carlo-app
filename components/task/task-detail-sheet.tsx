@@ -7,7 +7,7 @@ import z from "zod"
 import { Member, Task, TaskComment } from "@/lib/types"
 import { formatShort, shortId } from "@/lib/utils"
 import { priorityMeta } from "@/lib/board-ui"
-import { createClient } from "@/lib/client"
+import { createClient } from "@/lib/supabase/client"
 import { addComment } from "@/lib/services/actions/comment"
 import { updateTask } from "@/lib/services/actions/task"
 import { updateTaskSchema } from "@/lib/schemas/task"
@@ -18,9 +18,9 @@ import {
   SheetDescription,
   SheetTitle,
 } from "@/components/ui/sheet"
-import { Btn, IconBtn, Pill } from "@/components/ui/pm"
-import { PmInput, PmTextarea, Segmented } from "@/components/ui/pm-form"
-import { UserAvatar } from "@/components/ui/user-avatar"
+import { Btn, IconBtn, Pill } from "@/components/common/ui-elements"
+import { Input, Textarea, Segmented } from "@/components/common/form"
+import { UserAvatar } from "@/components/common/user-avatar"
 import { AssigneeSelect } from "./assignee-select"
 import {
   IconX,
@@ -30,7 +30,7 @@ import {
   IconClock,
   IconSend,
   IconPencil,
-} from "@/components/ui/icons"
+} from "@/components/common/icons"
 
 type TaskFormData = z.infer<typeof updateTaskSchema>
 
@@ -256,7 +256,7 @@ export function TaskDetailSheet({
               control={form.control}
               name="title"
               render={({ field, fieldState }) => (
-                <PmInput
+                <Input
                   {...field}
                   aria-invalid={fieldState.invalid}
                   placeholder="Task title"
@@ -324,7 +324,7 @@ export function TaskDetailSheet({
                   control={form.control}
                   name="due_date"
                   render={({ field }) => (
-                    <PmInput
+                    <Input
                       type="date"
                       mono
                       className="h-8"
@@ -364,7 +364,7 @@ export function TaskDetailSheet({
                 control={form.control}
                 name="description"
                 render={({ field }) => (
-                  <PmTextarea
+                  <Textarea
                     {...field}
                     rows={4}
                     placeholder="Task description"

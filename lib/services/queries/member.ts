@@ -1,6 +1,6 @@
 import { cache } from "react"
-import { createClient } from "@/lib/server"
-import { getCurrentUser } from "../getCurrentUser"
+import { createClient } from "@/lib/supabase/server"
+import { getCurrentUser } from "./current-user"
 
 export type ViewerRole = "owner" | "admin" | "member"
 

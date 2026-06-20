@@ -12,19 +12,19 @@ import DroppableSection from "./droppable-section"
 import SectionEmpty from "./section-empty"
 import SectionGridLoader from "./section-grid-loader"
 import CreateSectionForm from "./create-section-form"
-import UpdateBoardDialog from "../board/update-board-dialog"
-import TaskOverlay from "../task/task-overlay"
-import { TaskDetailSheet } from "../task/task-detail-sheet"
-import { Btn, DotPulse, IconBtn } from "@/components/ui/pm"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { AvatarStack, UserAvatar } from "@/components/ui/user-avatar"
+import UpdateBoardDialog from "@/components/board/update-board-dialog"
+import TaskOverlay from "@/components/task/task-overlay"
+import { TaskDetailSheet } from "@/components/task/task-detail-sheet"
+import { Btn, DotPulse, IconBtn } from "@/components/common/ui-elements"
+import { ConfirmDialog } from "@/components/common/confirm-dialog"
+import { AvatarStack, UserAvatar } from "@/components/common/user-avatar"
 import {
   IconFilter,
   IconSort,
   IconPlus,
   IconPencil,
   IconTrash,
-} from "@/components/ui/icons"
+} from "@/components/common/icons"
 import {
   DropdownMenu,
   DropdownMenuContent,

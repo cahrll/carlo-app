@@ -5,7 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/context/auth-context"
-import { UserAvatar } from "@/components/ui/user-avatar"
+import { UserAvatar } from "@/components/common/user-avatar"
 import {
   IconBoard,
   IconInbox,
@@ -15,8 +15,8 @@ import {
   IconDots,
   IconUser,
   IconLogout,
-} from "@/components/ui/icons"
-import { IconBtn } from "@/components/ui/pm"
+} from "@/components/common/icons"
+import { IconBtn } from "@/components/common/ui-elements"
 import type { Board, Organization } from "@/lib/types"
 
 function NavLink({
@@ -68,6 +68,7 @@ export function Sidebar({
   orgId,
   open,
   onNavigate,
+  canManage,
 }: {
   organizations: Organization[]
   currentOrg: Organization | null
@@ -75,6 +76,7 @@ export function Sidebar({
   orgId: string
   open: boolean
   onNavigate: () => void
+  canManage?: boolean
 }) {
   const pathname = usePathname()
   const { profile, logout } = useAuth()
@@ -159,14 +161,16 @@ export function Sidebar({
         <span className="font-mono text-[10px] tracking-[0.12em] uppercase text-faint">
           Boards
         </span>
-        <Link
-          href={`${base}?compose=board`}
-          onClick={onNavigate}
-          className="grid place-items-center size-[22px] rounded-sm text-muted-foreground hover:bg-bg3 hover:text-ink [&_svg]:size-[13px]"
-          aria-label="New board"
-        >
-          <IconPlus />
-        </Link>
+        {canManage && (
+          <Link
+            href={`${base}?compose=board`}
+            onClick={onNavigate}
+            className="grid place-items-center size-[22px] rounded-sm text-muted-foreground hover:bg-bg3 hover:text-ink [&_svg]:size-[13px]"
+            aria-label="New board"
+          >
+            <IconPlus />
+          </Link>
+        )}
       </div>
       <div className="flex flex-col gap-px overflow-y-auto">
         {boards.map((b) => (

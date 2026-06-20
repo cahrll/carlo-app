@@ -1,4 +1,4 @@
-import { Skeleton } from "../ui/skeleton"
+import { Skeleton } from "@/components/ui/skeleton"
 
 const Col = () => (
   <div className="flex-[0_0_256px] bg-bg2 border border-line rounded-lg p-[11px] flex flex-col gap-2">

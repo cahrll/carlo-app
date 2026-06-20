@@ -1,14 +1,15 @@
 import { Invitation, Member, UserProfile } from "@/lib/types"
 import { formatShort } from "@/lib/utils"
-import { getMembers } from "@/lib/services/queries/member"
+import { getMembers, getViewerRole } from "@/lib/services/queries/member"
+import { canModify } from "@/lib/services/authz"
 import { getInvitationsByOrg } from "@/lib/services/queries/invitation"
 import { getAllProfiles } from "@/lib/services/queries/profile"
 import { notFound } from "next/navigation"
 import InviteMemberDialog from "@/components/organization/invite-member-dialog"
-import { Btn, Pill, RoleBadge } from "@/components/ui/pm"
-import { UserAvatar } from "@/components/ui/user-avatar"
-import { Content, PageHeader } from "@/components/ui/page"
-import { IconPlus, IconMail } from "@/components/ui/icons"
+import { Btn, Pill, RoleBadge } from "@/components/common/ui-elements"
+import { UserAvatar } from "@/components/common/user-avatar"
+import { Content, PageHeader } from "@/components/common/page"
+import { IconPlus, IconMail } from "@/components/common/icons"
 
 const thCls =
   "font-mono text-[10px] tracking-[0.1em] uppercase text-faint font-medium text-left px-[14px] py-[9px] border-b border-line"
@@ -29,14 +30,21 @@ const MembersPage = async ({
   params: Promise<{ orgId: string }>
 }) => {
   const { orgId } = await params
-  const [{ data: members, error }, { data: invitations }, { data: profiles }] =
-    await Promise.all([
-      getMembers(orgId),
-      getInvitationsByOrg(orgId),
-      getAllProfiles(),
-    ])
+  const [
+    { data: members, error },
+    { data: invitations },
+    { data: profiles },
+    role,
+  ] = await Promise.all([
+    getMembers(orgId),
+    getInvitationsByOrg(orgId),
+    getAllProfiles(),
+    getViewerRole(orgId),
+  ])
 
   if (error || !members) notFound()
+
+  const canInvite = canModify(role)
 
   const memberList = members as Member[]
   const inviteList = (invitations as Invitation[] | undefined) ?? []
@@ -53,17 +61,19 @@ const MembersPage = async ({
         title="Members"
         sub={`${memberList.length} active · ${inviteList.length} pending`}
         actions={
-          <InviteMemberDialog
-            organizationId={orgId}
-            profiles={(profiles as UserProfile[] | undefined) ?? []}
-            memberIds={[...memberIds]}
-            pendingInvitationEmails={[...pendingEmails]}
-          >
-            <Btn>
-              <IconPlus />
-              Invite member
-            </Btn>
-          </InviteMemberDialog>
+          canInvite ? (
+            <InviteMemberDialog
+              organizationId={orgId}
+              profiles={(profiles as UserProfile[] | undefined) ?? []}
+              memberIds={[...memberIds]}
+              pendingInvitationEmails={[...pendingEmails]}
+            >
+              <Btn>
+                <IconPlus />
+                Invite member
+              </Btn>
+            </InviteMemberDialog>
+          ) : undefined
         }
       />
 

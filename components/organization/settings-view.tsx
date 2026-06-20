@@ -9,10 +9,10 @@ import {
   updateOrganization,
   deleteOrganization,
 } from "@/lib/services/actions/organization"
-import { Btn } from "@/components/ui/pm"
-import { PmInput } from "@/components/ui/pm-form"
-import { ConfirmDialog } from "@/components/ui/confirm-dialog"
-import { Content } from "@/components/ui/page"
+import { Btn } from "@/components/common/ui-elements"
+import { Input } from "@/components/common/form"
+import { ConfirmDialog } from "@/components/common/confirm-dialog"
+import { Content } from "@/components/common/page"
 
 function SetGroup({
   title,
@@ -131,7 +131,7 @@ export default function SettingsView({
               desc="Shown across boards, invites, and the org switcher."
               control={
                 <div className="flex gap-2 w-full">
-                  <PmInput
+                  <Input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                   />

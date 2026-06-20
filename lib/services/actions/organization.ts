@@ -1,9 +1,9 @@
 'use server'
 
 import { revalidatePath } from "next/cache"
-import { getCurrentUser } from "../getCurrentUser"
-import { createOrganizationSchema, updateOrganizationSchema } from "@/lib/schemas/organizations"
-import { createClient } from "@/lib/server"
+import { getCurrentUser } from "../queries/current-user"
+import { createOrganizationSchema, updateOrganizationSchema } from "@/lib/schemas/organization"
+import { createClient } from "@/lib/supabase/server"
 import z from "zod"
 
 export async function createOrganization(unsafeData: z.infer<typeof createOrganizationSchema>) {

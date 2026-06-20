@@ -1,9 +1,11 @@
 'use server'
 
 import { revalidatePath } from "next/cache"
-import { createClient } from "@/lib/server"
-import { getCurrentUser } from "../getCurrentUser"
+import { createClient } from "@/lib/supabase/server"
+import { getCurrentUser } from "../queries/current-user"
 import { createChatRoomSchema, addChatRoomMembersSchema, sendMessageSchema } from "@/lib/schemas/chat"
+import { getViewerRole } from "@/lib/services/queries/member"
+import { canAccess, orgIdForChatRoom } from "@/lib/services/authz"
 import z from "zod"
 
 export async function createChatRoom(unsafeData: z.infer<typeof createChatRoomSchema>) {
@@ -16,6 +18,11 @@ export async function createChatRoom(unsafeData: z.infer<typeof createChatRoomSc
 
     if (!success) {
         return { error: true, message: 'Invalid chat room data' }
+    }
+
+    const role = await getViewerRole(data.org_id)
+    if (!canAccess(role)) {
+        return { error: true, message: 'You do not have access to this organization' }
     }
 
     const supabase = await createClient()
@@ -105,6 +112,15 @@ export async function sendMessage(unsafeData: z.infer<typeof sendMessageSchema>)
 
     if (!success) {
         return { error: true, message: 'Invalid message data' }
+    }
+
+    const orgId = await orgIdForChatRoom(data.chat_room_id)
+    if (!orgId) {
+        return { error: true, message: 'Conversation not found' }
+    }
+    const role = await getViewerRole(orgId)
+    if (!canAccess(role)) {
+        return { error: true, message: 'You do not have access to this conversation' }
     }
 
     const supabase = await createClient()

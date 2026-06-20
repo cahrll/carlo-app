@@ -8,9 +8,10 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Board, Organization } from "@/lib/types"
 import { createBoardSchema } from "@/lib/schemas/board"
 import { createBoardWithSections } from "@/lib/services/actions/board"
-import { Btn } from "@/components/ui/pm"
-import { PmDialog, PmField, PmInput, PmTextarea } from "@/components/ui/pm-form"
-import { IconPlus } from "@/components/ui/icons"
+import { Btn } from "@/components/common/ui-elements"
+import { Field, Input, Textarea } from "@/components/common/form"
+import { Modal } from "@/components/common/modal"
+import { IconPlus } from "@/components/common/icons"
 
 type FormData = z.infer<typeof createBoardSchema>
 
@@ -46,7 +47,7 @@ export default function CreateBoardDialog({
   }
 
   return (
-    <PmDialog
+    <Modal
       open={open}
       onOpenChange={setOpen}
       title="New board"
@@ -84,26 +85,26 @@ export default function CreateBoardDialog({
           control={form.control}
           name="title"
           render={({ field, fieldState }) => (
-            <PmField label="Board name" hint={fieldState.error?.message}>
-              <PmInput
+            <Field label="Board name" hint={fieldState.error?.message}>
+              <Input
                 {...field}
                 autoFocus
                 placeholder="e.g. Sprint 25"
                 aria-invalid={fieldState.invalid}
               />
-            </PmField>
+            </Field>
           )}
         />
         <Controller
           control={form.control}
           name="description"
           render={({ field }) => (
-            <PmField label={<>Description <span className="text-faint">optional</span></>}>
-              <PmInput {...field} placeholder="What is this board for?" />
-            </PmField>
+            <Field label={<>Description <span className="text-faint">optional</span></>}>
+              <Input {...field} placeholder="What is this board for?" />
+            </Field>
           )}
         />
-        <PmField label="Starting sections">
+        <Field label="Starting sections">
           <div className="flex gap-[6px] flex-wrap">
             {["To Do", "In Progress", "Testing", "Done"].map((s) => (
               <span
@@ -114,8 +115,8 @@ export default function CreateBoardDialog({
               </span>
             ))}
           </div>
-        </PmField>
+        </Field>
       </form>
-    </PmDialog>
+    </Modal>
   )
 }

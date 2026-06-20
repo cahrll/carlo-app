@@ -6,16 +6,16 @@ import z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { createTaskSchema } from "@/lib/schemas/task"
 import { Member } from "@/lib/types"
-import { Btn } from "@/components/ui/pm"
+import { Btn } from "@/components/common/ui-elements"
 import {
-  PmDialog,
-  PmField,
-  PmInput,
-  PmTextarea,
+  Field,
+  Input,
+  Textarea,
   Segmented,
-} from "@/components/ui/pm-form"
-import { Kbd } from "@/components/ui/kbd"
-import { IconPlus, IconFlag, IconCal, IconUser } from "@/components/ui/icons"
+} from "@/components/common/form"
+import { Modal } from "@/components/common/modal"
+import { Kbd } from "@/components/common/kbd"
+import { IconPlus, IconFlag, IconCal, IconUser } from "@/components/common/icons"
 import { AssigneeSelect } from "./assignee-select"
 
 type FormData = z.infer<typeof createTaskSchema>
@@ -69,7 +69,7 @@ const CreateTaskForm = ({
   }
 
   return (
-    <PmDialog
+    <Modal
       open={open}
       onOpenChange={setOpen}
       title="New task"
@@ -111,15 +111,15 @@ const CreateTaskForm = ({
           control={form.control}
           name="title"
           render={({ field, fieldState }) => (
-            <PmField label="Title" htmlFor="title">
-              <PmInput
+            <Field label="Title" htmlFor="title">
+              <Input
                 {...field}
                 id="title"
                 placeholder="What needs to be done?"
                 autoFocus
                 aria-invalid={fieldState.invalid}
               />
-            </PmField>
+            </Field>
           )}
         />
         <div className="flex gap-3">
@@ -127,7 +127,7 @@ const CreateTaskForm = ({
             control={form.control}
             name="priority"
             render={({ field }) => (
-              <PmField label={<><IconFlag /> Priority</>} className="flex-1">
+              <Field label={<><IconFlag /> Priority</>} className="flex-1">
                 <Segmented
                   full
                   value={field.value ?? "medium"}
@@ -138,15 +138,15 @@ const CreateTaskForm = ({
                     { value: "low", label: "Low", className: "text-faint" },
                   ]}
                 />
-              </PmField>
+              </Field>
             )}
           />
           <Controller
             control={form.control}
             name="due_date"
             render={({ field, fieldState }) => (
-              <PmField label={<><IconCal /> Due date</>} className="flex-1">
-                <PmInput
+              <Field label={<><IconCal /> Due date</>} className="flex-1">
+                <Input
                   type="date"
                   mono
                   aria-invalid={fieldState.invalid}
@@ -161,7 +161,7 @@ const CreateTaskForm = ({
                     )
                   }
                 />
-              </PmField>
+              </Field>
             )}
           />
         </div>
@@ -169,30 +169,30 @@ const CreateTaskForm = ({
           control={form.control}
           name="assignee_id"
           render={({ field }) => (
-            <PmField label={<><IconUser /> Assignee</>}>
+            <Field label={<><IconUser /> Assignee</>}>
               <AssigneeSelect
                 members={members}
                 value={field.value ?? ""}
                 onChange={field.onChange}
               />
-            </PmField>
+            </Field>
           )}
         />
         <Controller
           control={form.control}
           name="description"
           render={({ field }) => (
-            <PmField label="Description">
-              <PmTextarea
+            <Field label="Description">
+              <Textarea
                 {...field}
                 rows={3}
                 placeholder="Add detail, links, or acceptance criteria"
               />
-            </PmField>
+            </Field>
           )}
         />
       </form>
-    </PmDialog>
+    </Modal>
   )
 }
 

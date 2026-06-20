@@ -9,10 +9,11 @@ import { cn } from "@/lib/utils"
 import { createInvitationSchema } from "@/lib/schemas/invitation"
 import { createInvitation } from "@/lib/services/actions/invitation"
 import { UserProfile } from "@/lib/types"
-import { Btn, Pill, RoleBadge } from "@/components/ui/pm"
-import { PmDialog, PmField, PmInput, InputWrap } from "@/components/ui/pm-form"
-import { UserAvatar } from "@/components/ui/user-avatar"
-import { IconMail, IconSend } from "@/components/ui/icons"
+import { Btn, Pill, RoleBadge } from "@/components/common/ui-elements"
+import { Field, Input, InputWrap } from "@/components/common/form"
+import { Modal } from "@/components/common/modal"
+import { UserAvatar } from "@/components/common/user-avatar"
+import { IconMail, IconSend } from "@/components/common/icons"
 
 type FormData = z.infer<typeof createInvitationSchema>
 
@@ -94,7 +95,7 @@ const InviteMemberDialog = ({
   }
 
   return (
-    <PmDialog
+    <Modal
       open={open}
       onOpenChange={(value) => {
         setOpen(value)
@@ -128,7 +129,7 @@ const InviteMemberDialog = ({
           control={form.control}
           name="email"
           render={({ field, fieldState }) => (
-            <PmField
+            <Field
               label="Email address"
               hint={
                 fieldState.error?.message ??
@@ -137,7 +138,7 @@ const InviteMemberDialog = ({
             >
               <div className="relative">
                 <InputWrap icon={<IconMail />}>
-                  <PmInput
+                  <Input
                     {...field}
                     mono
                     type="email"
@@ -189,7 +190,7 @@ const InviteMemberDialog = ({
                   </div>
                 )}
               </div>
-            </PmField>
+            </Field>
           )}
         />
 
@@ -197,7 +198,7 @@ const InviteMemberDialog = ({
           control={form.control}
           name="role"
           render={({ field }) => (
-            <PmField label="Role">
+            <Field label="Role">
               <div className="flex gap-2">
                 {(
                   [
@@ -229,11 +230,11 @@ const InviteMemberDialog = ({
                   </button>
                 ))}
               </div>
-            </PmField>
+            </Field>
           )}
         />
       </form>
-    </PmDialog>
+    </Modal>
   )
 }
 

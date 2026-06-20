@@ -1,10 +1,10 @@
-import { PmEmpty } from "@/components/ui/pm-empty"
-import { IconInbox } from "@/components/ui/icons"
+import { EmptyState } from "@/components/common/empty-state"
+import { IconInbox } from "@/components/common/icons"
 
 const InboxPage = () => {
   return (
     <section className="hidden nav:flex flex-1">
-      <PmEmpty
+      <EmptyState
         className="w-full"
         icon={<IconInbox />}
         title="Your messages"

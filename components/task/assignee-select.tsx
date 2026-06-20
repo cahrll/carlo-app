@@ -4,13 +4,13 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/context/auth-context"
 import type { Member } from "@/lib/types"
-import { UserAvatar } from "@/components/ui/user-avatar"
+import { UserAvatar } from "@/components/common/user-avatar"
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
 } from "@/components/ui/dropdown-menu"
-import { IconUser, IconCheck, IconChevron } from "@/components/ui/icons"
+import { IconUser, IconCheck, IconChevron } from "@/components/common/icons"
 
 function Row({
   selected,

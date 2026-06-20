@@ -1,8 +1,9 @@
 "use client"
 
 import * as React from "react"
-import { Btn } from "@/components/ui/pm"
-import { PmDialog, PmInput } from "@/components/ui/pm-form"
+import { Btn } from "@/components/common/ui-elements"
+import { Input } from "@/components/common/form"
+import { Modal } from "@/components/common/modal"
 
 export function ConfirmDialog({
   trigger,
@@ -44,7 +45,7 @@ export function ConfirmDialog({
   }
 
   return (
-    <PmDialog
+    <Modal
       open={open}
       onOpenChange={setOpen}
       title={title}
@@ -77,7 +78,7 @@ export function ConfirmDialog({
             <span className="font-mono text-ink">{confirmPhrase}</span> to
             confirm.
           </label>
-          <PmInput
+          <Input
             value={typed}
             onChange={(e) => setTyped(e.target.value)}
             autoFocus
@@ -86,6 +87,6 @@ export function ConfirmDialog({
           />
         </div>
       )}
-    </PmDialog>
+    </Modal>
   )
 }

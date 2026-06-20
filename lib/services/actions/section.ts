@@ -1,10 +1,12 @@
 'use server'
 
 import { revalidatePath } from "next/cache"
-import { createClient } from "@/lib/server"
-import { getCurrentUser } from "../getCurrentUser"
+import { createClient } from "@/lib/supabase/server"
+import { getCurrentUser } from "../queries/current-user"
 import z from "zod"
 import { createSectionSchema, updateSectionSchema } from "@/lib/schemas/section"
+import { getViewerRole } from "@/lib/services/queries/member"
+import { canModify, isOwner, orgIdForBoard } from "@/lib/services/authz"
 
 export async function createSection(unsafeData: z.infer<typeof createSectionSchema>) {
     const {success, data} = createSectionSchema.safeParse(unsafeData)
@@ -16,6 +18,15 @@ export async function createSection(unsafeData: z.infer<typeof createSectionSche
 
     if(!user) {
         return { error: true, message: 'User is not authenticated'}
+    }
+
+    const orgId = await orgIdForBoard(data.board_id)
+    if (!orgId) {
+        return { error: true, message: 'Board not found' }
+    }
+    const role = await getViewerRole(orgId)
+    if (!canModify(role)) {
+        return { error: true, message: 'You do not have permission to add sections here' }
     }
 
     const supabase = await createClient()
@@ -66,6 +77,15 @@ export async function updateSection(id: string, unsafeData: z.infer<typeof updat
         return { error: true, message: 'Section not found' }
     }
 
+    const orgId = await orgIdForBoard(existingSection.board_id)
+    if (!orgId) {
+        return { error: true, message: 'Board not found' }
+    }
+    const role = await getViewerRole(orgId)
+    if (!canModify(role)) {
+        return { error: true, message: 'You do not have permission to modify this section' }
+    }
+
     const { data: section, error } = await supabase
         .from('section')
         .update({
@@ -104,6 +124,15 @@ export async function deleteSection(id: string) {
 
     if (fetchError || !existingSection) {
         return { error: true, message: 'Section not found' }
+    }
+
+    const orgId = await orgIdForBoard(existingSection.board_id)
+    if (!orgId) {
+        return { error: true, message: 'Board not found' }
+    }
+    const role = await getViewerRole(orgId)
+    if (!isOwner(role)) {
+        return { error: true, message: 'Only the organization owner can delete sections' }
     }
 
     // no FK cascade: delete tasks first

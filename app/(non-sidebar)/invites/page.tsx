@@ -1,13 +1,13 @@
 import InvitationActions from "@/components/invitation/invitation-actions"
-import { getCurrentUser } from "@/lib/services/getCurrentUser"
+import { getCurrentUser } from "@/lib/services/queries/current-user"
 import { getInvitationsByUser } from "@/lib/services/queries/invitation"
 import { UserInvitation } from "@/lib/types"
 import { formatShort } from "@/lib/utils"
 import { redirect } from "next/navigation"
-import { FlowShell, FlowTitle, FlowLead } from "@/components/ui/flow"
-import { PmEmpty } from "@/components/ui/pm-empty"
-import { nameHue } from "@/components/ui/user-avatar"
-import { IconMail } from "@/components/ui/icons"
+import { FlowShell, FlowTitle, FlowLead } from "@/components/common/flow"
+import { EmptyState } from "@/components/common/empty-state"
+import { nameHue } from "@/components/common/user-avatar"
+import { IconMail } from "@/components/common/icons"
 
 const InvitesPage = async () => {
   const user = await getCurrentUser()
@@ -17,7 +17,7 @@ const InvitesPage = async () => {
   const list = (invitations as UserInvitation[] | undefined) ?? []
 
   return (
-    <FlowShell wide back="/">
+    <FlowShell wide back="/" account>
       <FlowTitle>Pending invitations</FlowTitle>
       <FlowLead>Teams that have invited you to collaborate.</FlowLead>
 
@@ -27,7 +27,7 @@ const InvitesPage = async () => {
         </p>
       ) : list.length === 0 ? (
         <div className="mt-4">
-          <PmEmpty
+          <EmptyState
             icon={<IconMail />}
             title="No pending invitations"
             description="When a team invites you to join, it will show up here."

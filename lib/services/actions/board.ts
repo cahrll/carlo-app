@@ -1,10 +1,12 @@
 'use server'
 
 import { revalidatePath } from "next/cache"
-import { createClient } from "@/lib/server"
-import { getCurrentUser } from "../getCurrentUser"
+import { createClient } from "@/lib/supabase/server"
+import { getCurrentUser } from "../queries/current-user"
 import z from "zod"
 import { createBoardSchema, updateBoardSchema } from "@/lib/schemas/board"
+import { getViewerRole } from "@/lib/services/queries/member"
+import { canModify, isOwner } from "@/lib/services/authz"
 
 const DEFAULT_SECTIONS = [
     { title: 'To Do', sort_order: 0 },
@@ -23,6 +25,11 @@ export async function createBoardWithSections(unsafeData: z.infer<typeof createB
     
     if(!success) {
         return { error: true, message: 'Invalid board data'}
+    }
+
+    const role = await getViewerRole(data.org_id)
+    if (!canModify(role)) {
+        return { error: true, message: 'You do not have permission to create boards here' }
     }
 
     const supabase = await createClient()
@@ -88,6 +95,11 @@ export async function updateBoard(id: string, unsafeData: z.infer<typeof updateB
         return { error: true, message: 'Board not found' }
     }
 
+    const role = await getViewerRole(existingBoard.org_id)
+    if (!canModify(role)) {
+        return { error: true, message: 'You do not have permission to modify this board' }
+    }
+
     const { data: board, error } = await supabase
         .from('board')
         .update({
@@ -128,6 +140,11 @@ export async function deleteBoard(id: string) {
 
     if (fetchError || !existingBoard) {
         return { error: true, message: 'Board not found' }
+    }
+
+    const role = await getViewerRole(existingBoard.org_id)
+    if (!isOwner(role)) {
+        return { error: true, message: 'Only the organization owner can delete boards' }
     }
 
     // no FK cascade: delete tasks -> sections -> board
