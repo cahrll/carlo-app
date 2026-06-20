@@ -16,7 +16,7 @@ import {
   IconUser,
   IconLogout,
 } from "@/components/common/icons"
-import { IconBtn } from "@/components/common/pm"
+import { IconBtn } from "@/components/common/ui-elements"
 import type { Board, Organization } from "@/lib/types"
 
 function NavLink({

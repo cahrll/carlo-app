@@ -1,7 +1,7 @@
 "use server"
 
-import { createClient } from "@/lib/server"
-import { getCurrentUser } from "../getCurrentUser"
+import { createClient } from "@/lib/supabase/server"
+import { getCurrentUser } from "../queries/current-user"
 import { addCommentSchema } from "@/lib/schemas/comment"
 import { getViewerRole } from "@/lib/services/queries/member"
 import { canAccess, orgIdForTask } from "@/lib/services/authz"

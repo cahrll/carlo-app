@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils"
 import { UserAvatar } from "@/components/common/user-avatar"
-import { InputWrap, PmInput } from "@/components/common/pm-form"
+import { InputWrap, Input } from "@/components/common/form"
 import { IconSearch, IconCheck } from "@/components/common/icons"
 import type { Member } from "@/lib/types"
 
@@ -26,7 +26,7 @@ export function MemberPicker({
   return (
     <div className="flex flex-col gap-2">
       <InputWrap icon={<IconSearch />}>
-        <PmInput
+        <Input
           mono
           value={search}
           onChange={(e) => setSearch(e.target.value)}

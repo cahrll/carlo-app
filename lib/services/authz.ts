@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/server"
+import { createClient } from "@/lib/supabase/server"
 import { type ViewerRole } from "@/lib/services/queries/member"
 
 // gates mirror the RLS permission model

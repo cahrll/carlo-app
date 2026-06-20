@@ -3,8 +3,8 @@
 import Link from "next/link"
 import { Organization } from "@/lib/types"
 import { FlowShell, FlowTitle, FlowLead } from "@/components/common/flow"
-import { Btn, RoleBadge } from "@/components/common/pm"
-import { PmEmpty } from "@/components/common/pm-empty"
+import { Btn, RoleBadge } from "@/components/common/ui-elements"
+import { EmptyState } from "@/components/common/empty-state"
 import { nameHue } from "@/components/common/user-avatar"
 import { IconPlus, IconRight, IconBell } from "@/components/common/icons"
 
@@ -56,7 +56,7 @@ const OrganizationList = ({
 
       {organizations.length === 0 ? (
         <div className="mt-4">
-          <PmEmpty
+          <EmptyState
             icon={<IconPlus />}
             title="No organizations yet"
             description="Create your first organization to start planning, assigning, and chatting in one place."

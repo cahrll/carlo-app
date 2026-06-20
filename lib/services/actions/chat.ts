@@ -1,8 +1,8 @@
 'use server'
 
 import { revalidatePath } from "next/cache"
-import { createClient } from "@/lib/server"
-import { getCurrentUser } from "../getCurrentUser"
+import { createClient } from "@/lib/supabase/server"
+import { getCurrentUser } from "../queries/current-user"
 import { createChatRoomSchema, addChatRoomMembersSchema, sendMessageSchema } from "@/lib/schemas/chat"
 import { getViewerRole } from "@/lib/services/queries/member"
 import { canAccess, orgIdForChatRoom } from "@/lib/services/authz"

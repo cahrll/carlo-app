@@ -1,10 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { supabase } from "@/lib/client"
+import { supabase } from "@/lib/supabase/client"
 import { FlowShell, FlowTitle, FlowLead } from "@/components/common/flow"
-import { Btn } from "@/components/common/pm"
-import { PmField, PmInput, InputWrap } from "@/components/common/pm-form"
+import { Btn } from "@/components/common/ui-elements"
+import { Field, Input, InputWrap } from "@/components/common/form"
 import { IconMail, IconRight } from "@/components/common/icons"
 
 const LoginForm = () => {
@@ -80,9 +80,9 @@ const LoginForm = () => {
         onSubmit={handleMagicLink}
         className="flex flex-col gap-[15px] mt-[22px]"
       >
-        <PmField label="Work email" hint={message || undefined}>
+        <Field label="Work email" hint={message || undefined}>
           <InputWrap icon={<IconMail />}>
-            <PmInput
+            <Input
               mono
               type="email"
               value={email}
@@ -91,7 +91,7 @@ const LoginForm = () => {
               required
             />
           </InputWrap>
-        </PmField>
+        </Field>
         <Btn block type="submit" disabled={isLoading}>
           {isLoading ? "Sending..." : "Send magic link"}
           <IconRight />

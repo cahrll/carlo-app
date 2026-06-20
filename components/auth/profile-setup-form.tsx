@@ -4,8 +4,8 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { setupProfile } from "@/lib/services/actions/profile"
 import { FlowShell, FlowTitle, FlowLead } from "@/components/common/flow"
-import { Btn } from "@/components/common/pm"
-import { PmField, PmInput } from "@/components/common/pm-form"
+import { Btn } from "@/components/common/ui-elements"
+import { Field, Input } from "@/components/common/form"
 import { UserAvatar } from "@/components/common/user-avatar"
 import { IconRight } from "@/components/common/icons"
 
@@ -20,8 +20,7 @@ const ProfileSetupForm = () => {
     setIsLoading(true)
     try {
       await setupProfile(name)
-    } catch (error) {
-      console.log(error)
+    } catch {
     } finally {
       setIsLoading(false)
       router.push("/")
@@ -39,14 +38,14 @@ const ProfileSetupForm = () => {
         <div className="flex items-center gap-[14px]">
           <UserAvatar name={name || "You"} size={56} className="text-[18px]" />
         </div>
-        <PmField label="Display name">
-          <PmInput
+        <Field label="Display name">
+          <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="e.g. John Doe"
             required
           />
-        </PmField>
+        </Field>
         <Btn block type="submit" disabled={isLoading}>
           {isLoading ? "Setting up..." : "Continue"}
           <IconRight />

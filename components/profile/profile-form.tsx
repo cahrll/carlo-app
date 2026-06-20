@@ -8,8 +8,8 @@ import { updateProfileSchema } from "@/lib/schemas/profile"
 import { updateProfile } from "@/lib/services/actions/profile"
 import { useAuth } from "@/context/auth-context"
 import { FlowShell, FlowTitle, FlowLead } from "@/components/common/flow"
-import { Btn } from "@/components/common/pm"
-import { PmField, PmInput, InputWrap } from "@/components/common/pm-form"
+import { Btn } from "@/components/common/ui-elements"
+import { Field, Input, InputWrap } from "@/components/common/form"
 import { Kbd } from "@/components/common/kbd"
 import { UserAvatar } from "@/components/common/user-avatar"
 import { IconMail } from "@/components/common/icons"
@@ -66,16 +66,16 @@ const ProfileForm = ({ profile, email }: ProfileFormProps) => {
           control={form.control}
           name="name"
           render={({ field, fieldState }) => (
-            <PmField label="Display name" hint={fieldState.error?.message}>
-              <PmInput
+            <Field label="Display name" hint={fieldState.error?.message}>
+              <Input
                 {...field}
                 placeholder="Your name"
                 aria-invalid={fieldState.invalid}
               />
-            </PmField>
+            </Field>
           )}
         />
-        <PmField
+        <Field
           label={
             <>
               Email <Kbd>read only</Kbd>
@@ -84,9 +84,9 @@ const ProfileForm = ({ profile, email }: ProfileFormProps) => {
           hint="Email is your sign-in identity and cannot be changed here."
         >
           <InputWrap icon={<IconMail />}>
-            <PmInput mono value={email} disabled className="opacity-70" />
+            <Input mono value={email} disabled className="opacity-70" />
           </InputWrap>
-        </PmField>
+        </Field>
         <div className="flex gap-[9px]">
           <Btn type="submit" disabled={isPending || !form.formState.isDirty}>
             {isPending ? "Saving..." : "Save changes"}

@@ -7,8 +7,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Board } from "@/lib/types"
 import { updateBoardSchema } from "@/lib/schemas/board"
 import { updateBoard } from "@/lib/services/actions/board"
-import { Btn } from "@/components/common/pm"
-import { PmDialog, PmField, PmInput } from "@/components/common/pm-form"
+import { Btn } from "@/components/common/ui-elements"
+import { Field, Input } from "@/components/common/form"
+import { Modal } from "@/components/common/modal"
 
 type FormData = z.infer<typeof updateBoardSchema>
 
@@ -39,7 +40,7 @@ export default function UpdateBoardDialog({
   }
 
   return (
-    <PmDialog
+    <Modal
       open={open}
       onOpenChange={(v) => {
         setOpen(v)
@@ -77,32 +78,32 @@ export default function UpdateBoardDialog({
           control={form.control}
           name="title"
           render={({ field, fieldState }) => (
-            <PmField label="Board name" hint={fieldState.error?.message}>
-              <PmInput
+            <Field label="Board name" hint={fieldState.error?.message}>
+              <Input
                 {...field}
                 autoFocus
                 placeholder="e.g. Sprint 25"
                 aria-invalid={fieldState.invalid}
               />
-            </PmField>
+            </Field>
           )}
         />
         <Controller
           control={form.control}
           name="description"
           render={({ field }) => (
-            <PmField
+            <Field
               label={
                 <>
                   Description <span className="text-faint">optional</span>
                 </>
               }
             >
-              <PmInput {...field} placeholder="What is this board for?" />
-            </PmField>
+              <Input {...field} placeholder="What is this board for?" />
+            </Field>
           )}
         />
       </form>
-    </PmDialog>
+    </Modal>
   )
 }

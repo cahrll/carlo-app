@@ -1,5 +1,5 @@
-import { createClient } from "@/lib/server"
-import { getCurrentUser } from "../getCurrentUser"
+import { createClient } from "@/lib/supabase/server"
+import { getCurrentUser } from "./current-user"
 import { computeBoardProgress, newerTime } from "@/lib/board-ui"
 
 export async function getBoards(orgId: string) {

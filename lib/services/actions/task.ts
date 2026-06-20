@@ -1,7 +1,7 @@
 'use server'
 import { revalidatePath } from "next/cache"
-import { createClient } from "@/lib/server"
-import { getCurrentUser } from "../getCurrentUser"
+import { createClient } from "@/lib/supabase/server"
+import { getCurrentUser } from "../queries/current-user"
 import { createTaskSchema, updateTaskSchema, moveTaskSchema } from "@/lib/schemas/task"
 import { getViewerRole } from "@/lib/services/queries/member"
 import { canAccess, orgIdForSection, orgIdForTask } from "@/lib/services/authz"

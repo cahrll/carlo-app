@@ -8,8 +8,9 @@ import { useRouter } from "next/navigation"
 import { createChatRoom } from "@/lib/services/actions/chat"
 import { createChatRoomSchema } from "@/lib/schemas/chat"
 import type { Member } from "@/lib/types"
-import { Btn, IconBtn } from "@/components/common/pm"
-import { PmDialog, PmField, PmInput } from "@/components/common/pm-form"
+import { Btn, IconBtn } from "@/components/common/ui-elements"
+import { Field, Input } from "@/components/common/form"
+import { Modal } from "@/components/common/modal"
 import { IconPlus } from "@/components/common/icons"
 import { MemberPicker } from "./member-picker"
 
@@ -63,7 +64,7 @@ export default function CreateRoomDialog({
   }
 
   return (
-    <PmDialog
+    <Modal
       open={open}
       onOpenChange={(next) => {
         setOpen(next)
@@ -98,19 +99,19 @@ export default function CreateRoomDialog({
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-[14px]"
       >
-        <PmField
+        <Field
           label="Room name"
           hint={form.formState.errors.name?.message}
         >
-          <PmInput
+          <Input
             autoFocus
             placeholder="e.g. design"
             aria-invalid={!!form.formState.errors.name}
             {...form.register("name")}
           />
-        </PmField>
+        </Field>
         {members.length > 0 && (
-          <PmField label="Add members">
+          <Field label="Add members">
             <MemberPicker
               members={members}
               selected={selectedMembers}
@@ -118,9 +119,9 @@ export default function CreateRoomDialog({
               search={memberSearch}
               setSearch={setMemberSearch}
             />
-          </PmField>
+          </Field>
         )}
       </form>
-    </PmDialog>
+    </Modal>
   )
 }

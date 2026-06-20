@@ -1,5 +1,5 @@
 import ProfileForm from "@/components/profile/profile-form"
-import { getCurrentUser } from "@/lib/services/getCurrentUser"
+import { getCurrentUser } from "@/lib/services/queries/current-user"
 import { getProfile } from "@/lib/services/queries/profile"
 import { notFound, redirect } from "next/navigation"
 

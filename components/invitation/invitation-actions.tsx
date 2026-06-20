@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import { acceptInvitation } from "@/lib/services/actions/invitation"
-import { Btn } from "@/components/common/pm"
+import { Btn } from "@/components/common/ui-elements"
 import { IconCheck } from "@/components/common/icons"
 
 interface InvitationActionsProps {

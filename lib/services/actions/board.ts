@@ -1,8 +1,8 @@
 'use server'
 
 import { revalidatePath } from "next/cache"
-import { createClient } from "@/lib/server"
-import { getCurrentUser } from "../getCurrentUser"
+import { createClient } from "@/lib/supabase/server"
+import { getCurrentUser } from "../queries/current-user"
 import z from "zod"
 import { createBoardSchema, updateBoardSchema } from "@/lib/schemas/board"
 import { getViewerRole } from "@/lib/services/queries/member"

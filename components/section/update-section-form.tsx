@@ -7,8 +7,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { updateSectionSchema } from "@/lib/schemas/section"
 import { updateSection } from "@/lib/services/actions/section"
 import { Section } from "@/lib/types"
-import { Btn, IconBtn } from "@/components/common/pm"
-import { PmDialog, PmField, PmInput } from "@/components/common/pm-form"
+import { Btn, IconBtn } from "@/components/common/ui-elements"
+import { Field, Input } from "@/components/common/form"
+import { Modal } from "@/components/common/modal"
 import { IconDots } from "@/components/common/icons"
 
 type FormData = z.infer<typeof updateSectionSchema>
@@ -38,7 +39,7 @@ const UpdateSectionForm = ({ section, onUpdate }: UpdateSectionFormProps) => {
   }
 
   return (
-    <PmDialog
+    <Modal
       open={open}
       onOpenChange={setOpen}
       title="Rename section"
@@ -68,18 +69,18 @@ const UpdateSectionForm = ({ section, onUpdate }: UpdateSectionFormProps) => {
           control={form.control}
           name="title"
           render={({ field, fieldState }) => (
-            <PmField label="Section name" htmlFor="title">
-              <PmInput
+            <Field label="Section name" htmlFor="title">
+              <Input
                 {...field}
                 id="title"
                 autoFocus
                 aria-invalid={fieldState.invalid}
               />
-            </PmField>
+            </Field>
           )}
         />
       </form>
-    </PmDialog>
+    </Modal>
   )
 }
 

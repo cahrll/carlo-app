@@ -1,5 +1,5 @@
 import LoginForm from "@/components/auth/login-form"
-import { getCurrentUser } from "@/lib/services/getCurrentUser"
+import { getCurrentUser } from "@/lib/services/queries/current-user"
 import { redirect } from "next/navigation"
 
 const LoginPage = async () => {

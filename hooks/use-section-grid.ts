@@ -5,7 +5,7 @@ import { createSection, deleteSection } from '@/lib/services/actions/section'
 import { createSectionSchema } from '@/lib/schemas/section'
 import { createTaskSchema } from '@/lib/schemas/task'
 import { createTask, moveTask } from '@/lib/services/actions/task'
-import { createClient } from '@/lib/client'
+import { createClient } from '@/lib/supabase/client'
 import z from 'zod'
 import {
     DragEndEvent,

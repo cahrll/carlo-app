@@ -1,6 +1,6 @@
 import { cache } from "react"
-import { getCurrentUser } from "../getCurrentUser"
-import { createClient } from "@/lib/server"
+import { getCurrentUser } from "./current-user"
+import { createClient } from "@/lib/supabase/server"
 
 export async function getOrganizations() {
     const user = await getCurrentUser()

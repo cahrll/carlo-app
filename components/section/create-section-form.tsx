@@ -5,8 +5,9 @@ import { Controller, useForm } from "react-hook-form"
 import z from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { createSectionSchema } from "@/lib/schemas/section"
-import { Btn } from "@/components/common/pm"
-import { PmDialog, PmField, PmInput } from "@/components/common/pm-form"
+import { Btn } from "@/components/common/ui-elements"
+import { Field, Input } from "@/components/common/form"
+import { Modal } from "@/components/common/modal"
 import { IconPlus } from "@/components/common/icons"
 
 type FormData = z.infer<typeof createSectionSchema>
@@ -52,7 +53,7 @@ const CreateSectionForm = ({
   }
 
   return (
-    <PmDialog
+    <Modal
       open={open}
       onOpenChange={setOpen}
       title="New section"
@@ -85,19 +86,19 @@ const CreateSectionForm = ({
           control={form.control}
           name="title"
           render={({ field, fieldState }) => (
-            <PmField label="Section name" htmlFor="title">
-              <PmInput
+            <Field label="Section name" htmlFor="title">
+              <Input
                 {...field}
                 id="title"
                 autoFocus
                 placeholder="e.g. In Review"
                 aria-invalid={fieldState.invalid}
               />
-            </PmField>
+            </Field>
           )}
         />
       </form>
-    </PmDialog>
+    </Modal>
   )
 }
 

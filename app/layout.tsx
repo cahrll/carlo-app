@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/providers";
-import { getCurrentUser } from "@/lib/services/getCurrentUser";
+import { getCurrentUser } from "@/lib/services/queries/current-user";
 import { getProfile } from "@/lib/services/queries/profile";
 
 const inter = Inter({

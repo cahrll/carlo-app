@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/client"
+import { createClient } from "@/lib/supabase/client"
 import type { ChatMessage } from "@/lib/types"
 import type { RealtimeChannel } from "@supabase/supabase-js"
 import { useEffect, useRef, useState, useCallback } from "react"

@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { IconBtn } from "@/components/common/pm"
+import { IconBtn } from "@/components/common/ui-elements"
 import { IconUser, IconMail, IconLogout } from "@/components/common/icons"
 import { useAuth } from "@/context/auth-context"
 

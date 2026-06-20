@@ -1,5 +1,5 @@
-import { createClient } from "@/lib/server"
-import { getCurrentUser } from "../getCurrentUser"
+import { createClient } from "@/lib/supabase/server"
+import { getCurrentUser } from "./current-user"
 import { Task } from "@/lib/types"
 
 const BASE_SELECT = "*, creator:creator_id(name), assignee:assignee_id(name)"

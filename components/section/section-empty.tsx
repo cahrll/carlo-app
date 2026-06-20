@@ -2,8 +2,8 @@
 
 import z from "zod"
 import { createSectionSchema } from "@/lib/schemas/section"
-import { PmEmpty } from "@/components/common/pm-empty"
-import { Btn } from "@/components/common/pm"
+import { EmptyState } from "@/components/common/empty-state"
+import { Btn } from "@/components/common/ui-elements"
 import { IconBoard, IconPlus } from "@/components/common/icons"
 import CreateSectionForm from "./create-section-form"
 import { Kbd } from "@/components/common/kbd"
@@ -24,7 +24,7 @@ const SectionEmpty = ({
   isPending,
 }: SectionEmptyProps) => {
   return (
-    <PmEmpty
+    <EmptyState
       icon={<IconBoard />}
       title="No sections yet"
       description="A board organizes work in sections. Add your first section and start dropping in tasks."

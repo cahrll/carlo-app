@@ -1,21 +1,13 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { IconX } from "@/components/common/icons"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 
 const inputBase =
   "w-full bg-bg3 border border-line rounded-sm text-foreground outline-none transition-[border-color,box-shadow] duration-150 placeholder:text-faint focus:border-acc focus:shadow-[0_0_0_3px_var(--acc-ring)] disabled:opacity-70 aria-[invalid=true]:border-bad"
 
-export const PmInput = React.forwardRef<
+export const Input = React.forwardRef<
   HTMLInputElement,
   React.ComponentProps<"input"> & { mono?: boolean }
->(function PmInput({ className, mono, ...props }, ref) {
+>(function Input({ className, mono, ...props }, ref) {
   return (
     <input
       ref={ref}
@@ -30,10 +22,10 @@ export const PmInput = React.forwardRef<
   )
 })
 
-export const PmTextarea = React.forwardRef<
+export const Textarea = React.forwardRef<
   HTMLTextAreaElement,
   React.ComponentProps<"textarea">
->(function PmTextarea({ className, ...props }, ref) {
+>(function Textarea({ className, ...props }, ref) {
   return (
     <textarea
       ref={ref}
@@ -43,7 +35,7 @@ export const PmTextarea = React.forwardRef<
   )
 })
 
-export function PmField({
+export function Field({
   label,
   hint,
   htmlFor,
@@ -85,102 +77,6 @@ export function InputWrap({
       {icon}
       {children}
     </div>
-  )
-}
-
-/* ---- dialog frame ---- */
-export const pmDialogContentClass =
-  "p-0 gap-0 bg-panel border border-line2 rounded-[13px] sm:max-w-[460px] overflow-hidden shadow-[0_40px_80px_-30px_oklch(0_0_0/0.85)]"
-
-export function PmDialogHeader({
-  title,
-  onClose,
-}: {
-  title: string
-  onClose?: () => void
-}) {
-  return (
-    <div className="flex items-center gap-[10px] px-[17px] py-[15px] border-b border-line">
-      <h3 className="text-[14px] font-semibold">{title}</h3>
-      {onClose && (
-        <button
-          type="button"
-          onClick={onClose}
-          className="ml-auto grid place-items-center size-[30px] rounded-sm text-muted-foreground hover:bg-bg3 hover:text-ink [&_svg]:size-4"
-          aria-label="Close"
-        >
-          <IconX />
-        </button>
-      )}
-    </div>
-  )
-}
-
-export function PmDialogBody({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
-  return (
-    <div
-      className={cn("p-[17px] flex flex-col gap-[14px]", className)}
-      {...props}
-    />
-  )
-}
-
-export function PmDialogFooter({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
-  return (
-    <div
-      className={cn(
-        "flex items-center gap-[9px] px-[17px] py-[13px] border-t border-line bg-bg1",
-        className
-      )}
-      {...props}
-    />
-  )
-}
-
-// styled dialog frame
-export function PmDialog({
-  open,
-  onOpenChange,
-  title,
-  description,
-  trigger,
-  children,
-  footer,
-  className,
-  contentClassName,
-}: {
-  open?: boolean
-  onOpenChange?: (v: boolean) => void
-  title: string
-  description?: string
-  trigger?: React.ReactNode
-  children: React.ReactNode
-  footer?: React.ReactNode
-  className?: string
-  contentClassName?: string
-}) {
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-      <DialogContent
-        showCloseButton={false}
-        className={cn(pmDialogContentClass, contentClassName)}
-      >
-        <DialogTitle className="sr-only">{title}</DialogTitle>
-        <DialogDescription className="sr-only">
-          {description ?? title}
-        </DialogDescription>
-        <PmDialogHeader title={title} onClose={() => onOpenChange?.(false)} />
-        <PmDialogBody className={className}>{children}</PmDialogBody>
-        {footer && <PmDialogFooter>{footer}</PmDialogFooter>}
-      </DialogContent>
-    </Dialog>
   )
 }
 

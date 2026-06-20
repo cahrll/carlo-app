@@ -4,11 +4,11 @@ import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import z from "zod"
 import { useRouter } from "next/navigation"
-import { createOrganizationSchema } from "@/lib/schemas/organizations"
+import { createOrganizationSchema } from "@/lib/schemas/organization"
 import { createOrganization } from "@/lib/services/actions/organization"
 import { FlowShell, FlowTitle, FlowLead } from "@/components/common/flow"
-import { Btn } from "@/components/common/pm"
-import { PmField, PmInput } from "@/components/common/pm-form"
+import { Btn } from "@/components/common/ui-elements"
+import { Field, Input } from "@/components/common/form"
 import { IconRight } from "@/components/common/icons"
 
 type FormData = z.infer<typeof createOrganizationSchema>
@@ -38,14 +38,14 @@ const CreatePage = () => {
           control={form.control}
           name="name"
           render={({ field, fieldState }) => (
-            <PmField label="Organization name" hint={fieldState.error?.message}>
-              <PmInput
+            <Field label="Organization name" hint={fieldState.error?.message}>
+              <Input
                 {...field}
                 autoFocus
                 placeholder="Acme Studio"
                 aria-invalid={fieldState.invalid}
               />
-            </PmField>
+            </Field>
           )}
         />
         <Btn block type="submit" disabled={form.formState.isSubmitting}>

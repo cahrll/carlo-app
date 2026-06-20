@@ -1,5 +1,5 @@
-import { createClient } from "@/lib/server"
-import { getCurrentUser } from "../getCurrentUser"
+import { createClient } from "@/lib/supabase/server"
+import { getCurrentUser } from "./current-user"
 
 export async function getInvitationsByOrg(organizationId: string) {
     const user = await getCurrentUser()

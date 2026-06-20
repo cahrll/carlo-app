@@ -1,7 +1,7 @@
 import OrganizationList from "@/components/organization/organization-list"
 import { getOrganizations } from "@/lib/services/queries/organization"
 import { getInvitationsByUser } from "@/lib/services/queries/invitation"
-import { getCurrentUser } from "@/lib/services/getCurrentUser"
+import { getCurrentUser } from "@/lib/services/queries/current-user"
 import { redirect } from "next/navigation"
 
 export default async function Home() {

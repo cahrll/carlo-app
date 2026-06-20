@@ -13,11 +13,11 @@ import {
 import { Board, Organization } from "@/lib/types"
 import Link from "next/link"
 import { timeAgo, slugify } from "@/lib/utils"
-import { createClient } from "@/lib/client"
+import { createClient } from "@/lib/supabase/client"
 import { computeBoardProgress, newerTime } from "@/lib/board-ui"
 import { Content, PageHeader } from "@/components/common/page"
-import { PmEmpty } from "@/components/common/pm-empty"
-import { Btn } from "@/components/common/pm"
+import { EmptyState } from "@/components/common/empty-state"
+import { Btn } from "@/components/common/ui-elements"
 import { UserAvatar } from "@/components/common/user-avatar"
 import { Kbd } from "@/components/common/kbd"
 import { IconBoard, IconPlus } from "@/components/common/icons"
@@ -66,7 +66,7 @@ function BoardListContent() {
       />
 
       {optimisticBoards.length === 0 ? (
-        <PmEmpty
+        <EmptyState
           icon={<IconBoard />}
           title="No boards yet"
           description={

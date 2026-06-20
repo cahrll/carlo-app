@@ -1,6 +1,6 @@
 'use server'
-import { getCurrentUser } from "../getCurrentUser";
-import { createClient } from "@/lib/server";
+import { getCurrentUser } from "../queries/current-user";
+import { createClient } from "@/lib/supabase/server";
 import { updateProfileSchema } from "@/lib/schemas/profile";
 import z from "zod";
 
