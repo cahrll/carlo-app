@@ -3,8 +3,7 @@ import { Task, TaskComment } from "@/lib/types"
 import { createClient } from "@/lib/supabase/client"
 import { addComment } from "@/lib/services/actions/comment"
 
-// Loads a task's comments, streams in others' comments live (ours show
-// optimistically), and posts new comments with optimistic insert + rollback.
+// task comments: load, live-stream others', optimistic post with rollback
 export function useTaskComments({
   task,
   open,
@@ -40,7 +39,7 @@ export function useTaskComments({
 
     loadComments()
 
-    // stream in others' comments live (ours show optimistically)
+    // only others' inserts (ours are optimistic)
     const channel = supabase
       .channel(`task:${taskId}:comments`)
       .on(

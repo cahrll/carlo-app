@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
+import { useRouter } from "nextjs-toploader/app"
 import { Board, Member, SectionWithTasks, Task } from "@/lib/types"
 import { useSectionGrid } from "@/hooks/use-section-grid"
 import { useAuth } from "@/context/auth-context"

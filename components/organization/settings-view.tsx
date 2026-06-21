@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { useTransition } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter } from "nextjs-toploader/app"
 import { Organization } from "@/lib/types"
 import { slugify } from "@/lib/utils"
 import {

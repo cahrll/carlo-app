@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-/* ---- dialog frame ---- */
+// dialog frame
 export const modalContentClass =
   "p-0 gap-0 bg-panel border border-line2 rounded-[13px] sm:max-w-[460px] overflow-hidden shadow-[0_40px_80px_-30px_oklch(0_0_0/0.85)]"
 
@@ -64,7 +64,6 @@ export function ModalFooter({
   )
 }
 
-// styled dialog frame
 export function Modal({
   open,
   onOpenChange,

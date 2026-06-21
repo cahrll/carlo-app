@@ -45,7 +45,7 @@ export function ConfirmDialog({
     if (!phraseOk || pending) return
     setPending(true)
     const result = await onConfirm()
-    // close only on success; a result object with a truthy `error` keeps the dialog open
+    // close only on success (a truthy error keeps it open)
     if (
       result &&
       typeof result === "object" &&

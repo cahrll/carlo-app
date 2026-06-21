@@ -35,7 +35,6 @@ function Inner({
   const { setOpen, toggle } = useCommandStore()
   const pathname = usePathname()
 
-  // close the mobile drawer on route change
   React.useEffect(() => {
     setDrawerOpen(false)
   }, [pathname])

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 
 export type PresenceUser = { userId: string; name: string | null }
 
-// present users on a channel, deduped, incl. self
+// channel presence, deduped
 export function usePresence({
   channelName,
   userId,

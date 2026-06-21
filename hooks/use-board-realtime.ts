@@ -2,8 +2,7 @@ import { useEffect, type RefObject } from 'react'
 import { Board, SectionWithTasks, Task } from '@/lib/types'
 import { createClient } from '@/lib/supabase/client'
 
-// Subscribes to a board's realtime changes (board / section / task / task_comment)
-// and reconciles by refetching the board's sections + tasks (debounced).
+// realtime board sync: debounced refetch of sections + tasks on any change
 export function useBoardRealtime({
     boardId,
     onSections,

@@ -100,7 +100,6 @@ export function TaskDetailSheet({
     })
   }, [task, form])
 
-  // reset edit mode on task change
   React.useEffect(() => {
     setEditing(false)
   }, [task?.id])

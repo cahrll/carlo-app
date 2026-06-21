@@ -9,7 +9,7 @@ import {
   type FormEvent,
 } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter } from "nextjs-toploader/app"
 import { cn, formatDayLabel, formatTime, isSameDay } from "@/lib/utils"
 import { useOrg } from "@/context/org-context"
 import { useAuth } from "@/context/auth-context"
