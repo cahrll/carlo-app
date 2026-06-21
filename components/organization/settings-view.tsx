@@ -13,6 +13,7 @@ import { Btn } from "@/components/common/ui-elements"
 import { Input } from "@/components/common/form"
 import { ConfirmDialog } from "@/components/common/confirm-dialog"
 import { Content } from "@/components/common/page"
+import { useDeletions } from "@/context/deletions-context"
 
 function SetGroup({
   title,
@@ -83,6 +84,7 @@ export default function SettingsView({
   const [name, setName] = React.useState(organization.name)
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
+  const { hide, unhide } = useDeletions()
 
   function saveName() {
     startTransition(async () => {
@@ -91,11 +93,15 @@ export default function SettingsView({
   }
 
   async function handleDelete() {
+    hide(organization.id)
     const result = await deleteOrganization(organization.id)
-    if (!result.error) {
-      router.push("/")
-      router.refresh()
+    if (result.error) {
+      unhide(organization.id)
+      return result
     }
+    router.push("/")
+    router.refresh()
+    return result
   }
 
   return (
@@ -140,7 +146,7 @@ export default function SettingsView({
                     onClick={saveName}
                     disabled={isPending || name === organization.name}
                   >
-                    {isPending ? "..." : "Save"}
+                    {isPending ? "Saving..." : "Save"}
                   </Btn>
                 </div>
               }
@@ -173,6 +179,7 @@ export default function SettingsView({
                   title="Delete organization"
                   body="This permanently deletes the organization and all of its boards, tasks, members, invitations, and chat rooms. This cannot be undone."
                   confirmLabel="Delete organization"
+                  pendingLabel="Deleting organization..."
                   confirmPhrase={organization.name}
                   onConfirm={handleDelete}
                 />

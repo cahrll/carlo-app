@@ -22,7 +22,6 @@ const ProfileSetupForm = () => {
       await setupProfile(name)
     } catch {
     } finally {
-      setIsLoading(false)
       router.push("/")
     }
   }

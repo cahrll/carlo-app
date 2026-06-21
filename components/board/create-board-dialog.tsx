@@ -25,6 +25,7 @@ export default function CreateBoardDialog({
   trigger?: React.ReactNode
 }) {
   const [open, setOpen] = useState(false)
+  const [busy, setBusy] = useState(false)
   const searchParams = useSearchParams()
 
   const form = useForm<FormData>({
@@ -36,14 +37,20 @@ export default function CreateBoardDialog({
     if (searchParams.get("compose") === "board") setOpen(true)
   }, [searchParams])
 
+  useEffect(() => {
+    if (open) setBusy(false)
+  }, [open])
+
   async function handleCreateBoard(data: FormData) {
+    setBusy(true)
     const { error, board } = await createBoardWithSections(data)
-    if (error) return
-    if (board) {
-      onBoardCreated(board)
-      setOpen(false)
-      form.reset()
+    if (error || !board) {
+      setBusy(false)
+      return
     }
+    onBoardCreated(board)
+    setOpen(false)
+    form.reset()
   }
 
   return (
@@ -69,9 +76,9 @@ export default function CreateBoardDialog({
           <Btn
             type="submit"
             form="create-board-form"
-            disabled={form.formState.isSubmitting}
+            disabled={busy}
           >
-            {form.formState.isSubmitting ? "Creating..." : "Create board"}
+            {busy ? "Creating..." : "Create board"}
           </Btn>
         </>
       }

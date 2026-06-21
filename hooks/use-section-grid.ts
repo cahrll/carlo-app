@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useOptimistic, useRef, useState, useTransition } from 'react'
 import { Board, SectionWithTasks, Task } from '@/lib/types'
 import { useAuth } from '@/context/auth-context'
+import { useDeletions } from '@/context/deletions-context'
 import { createSection, deleteSection } from '@/lib/services/actions/section'
 import { createSectionSchema } from '@/lib/schemas/section'
 import { createTaskSchema } from '@/lib/schemas/task'
 import { createTask, moveTask } from '@/lib/services/actions/task'
-import { createClient } from '@/lib/supabase/client'
+import { useBoardRealtime } from '@/hooks/use-board-realtime'
 import z from 'zod'
 import {
     DragEndEvent,
@@ -31,6 +32,7 @@ const updateSection = (
 
 export function useSectionGrid(board: Board, initialSections: SectionWithTasks[]) {
     const { user, profile } = useAuth()
+    const { hide, unhide, hidden } = useDeletions()
     const [isPending, startTransition] = useTransition()
     const [currentBoard, setCurrentBoard] = useState(board)
     const [sections, setSections] = useState<SectionWithTasks[]>(initialSections)
@@ -57,118 +59,13 @@ export function useSectionGrid(board: Board, initialSections: SectionWithTasks[]
         taskIdsRef.current = new Set(sections.flatMap(s => s.tasks.map(t => t.id)))
     }, [sections])
 
-    useEffect(() => {
-        const supabase = createClient()
-
-        const fetchSectionsWithTasks = async () => {
-            const taskBaseSelect =
-                '*, creator:creator_id(name), assignee:assignee_id(name), section:section_id!inner(board_id)'
-
-            // comment-count aggregate, fall back if absent
-            const fetchTasks = async () => {
-                const withCount = await supabase
-                    .from('task')
-                    .select(`${taskBaseSelect}, task_comment(count)`)
-                    .eq('section.board_id', board.id)
-                    .order('sort_order', { ascending: false })
-                if (!withCount.error) return withCount
-                return supabase
-                    .from('task')
-                    .select(taskBaseSelect)
-                    .eq('section.board_id', board.id)
-                    .order('sort_order', { ascending: false })
-            }
-
-            const [sectionsResult, tasksResult] = await Promise.all([
-                supabase
-                    .from('section')
-                    .select('*')
-                    .eq('board_id', board.id)
-                    .order('sort_order', { ascending: true }),
-                fetchTasks()
-            ])
-
-            if (sectionsResult.error || tasksResult.error) return
-
-            const tasks: Task[] = tasksResult.data.map(task => ({
-                ...task,
-                creator_name: task.creator?.name,
-                assignee_name: task.assignee?.name,
-                comment_count: Array.isArray(task.task_comment)
-                    ? task.task_comment[0]?.count
-                    : undefined,
-                creator: undefined,
-                assignee: undefined,
-                section: undefined,
-                task_comment: undefined,
-            }))
-
-            const tasksBySection = tasks.reduce((acc, task) => {
-                if (!acc[task.section_id]) acc[task.section_id] = []
-                acc[task.section_id].push(task)
-                return acc
-            }, {} as Record<string, Task[]>)
-
-            setSections(sectionsResult.data.map(section => ({
-                ...section,
-                tasks: tasksBySection[section.id] || []
-            })))
-        }
-
-        const channel = supabase
-            .channel(`board:${board.id}`)
-            .on('postgres_changes', {
-                event: 'UPDATE',
-                schema: 'public',
-                table: 'board',
-                filter: `id=eq.${board.id}`
-            }, async () => {
-                const { data, error } = await supabase
-                    .from('board')
-                    .select('*')
-                    .eq('id', board.id)
-                    .single()
-                if (!error && data) setCurrentBoard(data)
-            })
-            .on('postgres_changes', {
-                event: '*',
-                schema: 'public',
-                table: 'section',
-                filter: `board_id=eq.${board.id}`
-            }, () => {
-                fetchSectionsWithTasks()
-            })
-            .on('postgres_changes', {
-                event: '*',
-                schema: 'public',
-                table: 'task',
-            }, (payload) => {
-                const sectionId =
-                    (payload.new as Record<string, unknown>)?.section_id ??
-                    (payload.old as Record<string, unknown>)?.section_id
-                if (!sectionId || sectionIdsRef.current.has(sectionId as string)) {
-                    setTimeout(() => fetchSectionsWithTasks(), 100)
-                }
-            })
-            .on('postgres_changes', {
-                event: '*',
-                schema: 'public',
-                table: 'task_comment',
-            }, (payload) => {
-                // no board_id on task_comment, scope by task id
-                const taskId =
-                    (payload.new as Record<string, unknown>)?.task_id ??
-                    (payload.old as Record<string, unknown>)?.task_id
-                if (taskId && taskIdsRef.current.has(taskId as string)) {
-                    setTimeout(() => fetchSectionsWithTasks(), 100)
-                }
-            })
-            .subscribe()
-
-        return () => {
-            channel.unsubscribe()
-        }
-    }, [board.id])
+    useBoardRealtime({
+        boardId: board.id,
+        onSections: setSections,
+        onBoard: setCurrentBoard,
+        sectionIdsRef,
+        taskIdsRef,
+    })
 
     const [optimisticSections, addOptimisticSection] = useOptimistic(
         sections,
@@ -203,14 +100,11 @@ export function useSectionGrid(board: Board, initialSections: SectionWithTasks[]
         })
     }
 
-    const handleDeleteSection = (sectionId: string) => {
-        const snapshot = sections
-        // optimistic local removal; DELETE events lack board_id, others reconcile on refetch
-        setSections(prev => prev.filter(s => s.id !== sectionId))
-        startTransition(async () => {
-            const result = await deleteSection(sectionId)
-            if (result.error) setSections(snapshot)
-        })
+    const handleDeleteSection = async (sectionId: string) => {
+        hide(sectionId)
+        const result = await deleteSection(sectionId)
+        if (result.error) unhide(sectionId)
+        return result
     }
 
     const handleCreateTask = useCallback((sectionId: string) => {
@@ -353,10 +247,12 @@ export function useSectionGrid(board: Board, initialSections: SectionWithTasks[]
         setOriginalSectionId(null)
     }
 
+    const visibleSections = optimisticSections.filter(s => !hidden.has(s.id))
+
     return {
         currentBoard,
         setCurrentBoard,
-        optimisticSections,
+        optimisticSections: visibleSections,
         isPending,
         isMounted,
         activeTask,

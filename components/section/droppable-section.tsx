@@ -22,7 +22,7 @@ interface DroppableSectionProps {
   index: number
   onCreateTask: (data: z.infer<typeof createTaskSchema>) => void
   onOpenTask: (task: Task) => void
-  onDeleteSection?: (id: string) => void
+  onDeleteSection?: (id: string) => Promise<{ error?: boolean }> | void
   isPending: boolean
   syncingTaskId?: string | null
   draggable?: boolean
@@ -114,6 +114,7 @@ const DroppableSection = ({
               title="Delete section"
               description="This deletes the section and all of its tasks. This cannot be undone."
               confirmLabel="Delete section"
+              pendingLabel="Deleting section..."
               onConfirm={() => onDeleteSection?.(currentSection.id)}
             />
           )}

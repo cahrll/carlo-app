@@ -6,7 +6,6 @@ import { EmptyState } from "@/components/common/empty-state"
 import { Btn } from "@/components/common/ui-elements"
 import { IconBoard, IconPlus } from "@/components/common/icons"
 import CreateSectionForm from "./create-section-form"
-import { Kbd } from "@/components/common/kbd"
 
 interface SectionEmptyProps {
   boardId: string
@@ -42,11 +41,6 @@ const SectionEmpty = ({
             </Btn>
           }
         />
-      }
-      hint={
-        <span>
-          or press <Kbd>C</Kbd> to add one
-        </span>
       }
     />
   )

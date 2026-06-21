@@ -24,6 +24,11 @@ export function Topbar({
   const base = `/organization/${orgId}`
   const rest = pathname.startsWith(base) ? pathname.slice(base.length) : ""
 
+  const [isMac, setIsMac] = React.useState(false)
+  React.useEffect(() => {
+    setIsMac(/mac|iphone|ipad|ipod/i.test(navigator.platform || navigator.userAgent))
+  }, [])
+
   let current = "Boards"
   if (rest.startsWith("/board/")) {
     const id = rest.split("/board/")[1]?.split("/")[0]
@@ -61,7 +66,7 @@ export function Topbar({
       >
         <IconSearch />
         <span className="max-nav:hidden">Search or jump to</span>
-        <Kbd className="ml-auto max-nav:hidden">⌘K</Kbd>
+        <Kbd className="ml-auto max-nav:hidden">{isMac ? "⌘K" : "Ctrl K"}</Kbd>
       </button>
     </header>
   )

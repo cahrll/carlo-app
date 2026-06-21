@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation"
 import { cn, formatDayLabel, formatTime, isSameDay } from "@/lib/utils"
 import { useOrg } from "@/context/org-context"
 import { useAuth } from "@/context/auth-context"
+import { useDeletions } from "@/context/deletions-context"
 import { sendMessage, deleteChatRoom } from "@/lib/services/actions/chat"
 import { useRealtimeChat } from "@/hooks/use-realtime-chat"
 import type { ChatMessage, Member } from "@/lib/types"
@@ -45,6 +46,7 @@ export default function ChatView({
   const { orgId } = useOrg()
   const { user, profile } = useAuth()
   const router = useRouter()
+  const { hide, unhide } = useDeletions()
   const [messageInput, setMessageInput] = useState("")
   const [sending, setSending] = useState(false)
   const [localMessages, setLocalMessages] = useState<ChatMessage[]>([])
@@ -123,11 +125,15 @@ export default function ChatView({
     roomMembers.some((m) => m.member_id === user.id && m.role === "admin")
 
   const handleDeleteRoom = async () => {
+    hide(roomId)
     const result = await deleteChatRoom(roomId)
-    if (!result.error) {
-      router.push(`/organization/${orgId}/inbox`)
-      router.refresh()
+    if (result.error) {
+      unhide(roomId)
+      return result
     }
+    router.push(`/organization/${orgId}/inbox`)
+    router.refresh()
+    return result
   }
 
   return (
@@ -173,6 +179,7 @@ export default function ChatView({
             title="Delete room"
             description="This permanently deletes this room and all of its messages for everyone. This cannot be undone."
             confirmLabel="Delete room"
+            pendingLabel="Deleting room..."
             onConfirm={handleDeleteRoom}
           />
         )}

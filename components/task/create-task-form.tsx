@@ -97,7 +97,7 @@ const CreateTaskForm = ({
             disabled={isPending}
           >
             Create task
-            <Kbd className="border-acc-on/30 text-acc-on bg-transparent">⌘↵</Kbd>
+            <Kbd className="border-acc-on/30 text-acc-on bg-transparent">↵</Kbd>
           </Btn>
         </>
       }

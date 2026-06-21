@@ -7,6 +7,7 @@ import { Btn, RoleBadge } from "@/components/common/ui-elements"
 import { EmptyState } from "@/components/common/empty-state"
 import { nameHue } from "@/components/common/user-avatar"
 import { IconPlus, IconRight, IconBell } from "@/components/common/icons"
+import { useDeletions } from "@/context/deletions-context"
 
 const OrganizationList = ({
   organizations,
@@ -21,6 +22,9 @@ const OrganizationList = ({
   id: string
   invitesCount?: number
 }) => {
+  const { hidden } = useDeletions()
+  const visibleOrgs = organizations.filter((o) => !hidden.has(o.id))
+
   if (error) {
     return (
       <FlowShell wide account>
@@ -54,7 +58,7 @@ const OrganizationList = ({
         </Link>
       )}
 
-      {organizations.length === 0 ? (
+      {visibleOrgs.length === 0 ? (
         <div className="mt-4">
           <EmptyState
             icon={<IconPlus />}
@@ -73,7 +77,7 @@ const OrganizationList = ({
       ) : (
         <>
           <div className="flex flex-col gap-[10px] mt-5">
-            {organizations.map((o) => {
+            {visibleOrgs.map((o) => {
               const role = id === o.owner_id ? "owner" : "member"
               return (
                 <Link

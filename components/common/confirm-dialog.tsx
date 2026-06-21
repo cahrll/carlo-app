@@ -11,6 +11,7 @@ export function ConfirmDialog({
   description,
   body,
   confirmLabel = "Delete",
+  pendingLabel = "Working...",
   danger = true,
   confirmPhrase,
   onConfirm,
@@ -20,6 +21,7 @@ export function ConfirmDialog({
   description?: string
   body?: React.ReactNode
   confirmLabel?: string
+  pendingLabel?: string
   danger?: boolean
   // type-to-confirm: must match to enable confirm
   confirmPhrase?: string
@@ -27,21 +29,33 @@ export function ConfirmDialog({
 }) {
   const [open, setOpen] = React.useState(false)
   const [typed, setTyped] = React.useState("")
-  const [pending, startTransition] = React.useTransition()
+  const [pending, setPending] = React.useState(false)
 
   React.useEffect(() => {
-    if (!open) setTyped("")
+    if (!open) {
+      setTyped("")
+      setPending(false)
+    }
   }, [open])
 
   const phraseOk =
     !confirmPhrase || typed.trim() === confirmPhrase.trim()
 
-  function handleConfirm() {
-    if (!phraseOk) return
-    startTransition(async () => {
-      await onConfirm()
-      setOpen(false)
-    })
+  async function handleConfirm() {
+    if (!phraseOk || pending) return
+    setPending(true)
+    const result = await onConfirm()
+    // close only on success; a result object with a truthy `error` keeps the dialog open
+    if (
+      result &&
+      typeof result === "object" &&
+      "error" in result &&
+      (result as { error?: unknown }).error
+    ) {
+      setPending(false)
+      return
+    }
+    setOpen(false)
   }
 
   return (
@@ -63,7 +77,7 @@ export function ConfirmDialog({
             onClick={handleConfirm}
             disabled={pending || !phraseOk}
           >
-            {pending ? "..." : confirmLabel}
+            {pending ? pendingLabel : confirmLabel}
           </Btn>
         </>
       }
