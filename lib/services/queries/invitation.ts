@@ -49,8 +49,7 @@ export async function getInvitationsByUser() {
     }
 
     const supabase = await createClient()
-    // SECURITY DEFINER RPC: returns only the caller's own pending invites + org
-    // name, so invitees never get read access to the organization row itself
+    // security definer rpc: only the caller's own pending invites, no org read access
     const { data, error } = await supabase.rpc('get_user_invitations')
 
     if (error) {

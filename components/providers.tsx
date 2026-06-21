@@ -3,6 +3,7 @@
 import type { User } from "@supabase/supabase-js";
 import { AuthProvider } from "@/context/auth-context";
 import { OrgProvider } from "@/context/org-context";
+import { DeletionsProvider } from "@/context/deletions-context";
 
 type InitialProfile = {
   id: string;
@@ -24,7 +25,9 @@ export default function Providers({
 }) {
   return (
     <AuthProvider initialUser={initialUser} initialProfile={initialProfile}>
-      <OrgProvider>{children}</OrgProvider>
+      <OrgProvider>
+        <DeletionsProvider>{children}</DeletionsProvider>
+      </OrgProvider>
     </AuthProvider>
   );
 }

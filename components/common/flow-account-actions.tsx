@@ -5,7 +5,7 @@ import { IconBtn } from "@/components/common/ui-elements"
 import { IconUser, IconMail, IconLogout } from "@/components/common/icons"
 import { useAuth } from "@/context/auth-context"
 
-// account shortcuts shown beside the flow-header version label
+// account shortcuts in the flow header
 export function FlowAccountActions() {
   const { logout } = useAuth()
 

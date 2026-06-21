@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 import Providers from "@/components/providers";
 import { getCurrentUser } from "@/lib/services/queries/current-user";
@@ -37,6 +38,14 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <body className="antialiased">
+        <NextTopLoader
+          color="var(--acc)"
+          height={2}
+          showSpinner={false}
+          shadow="0 0 8px var(--acc),0 0 4px var(--acc)"
+          speed={300}
+          easing="ease"
+        />
         <Providers initialUser={user} initialProfile={initialProfile}>
           {children}
         </Providers>

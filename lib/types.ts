@@ -127,7 +127,6 @@ export interface ChatMessage {
     author: { id: string; name: string | null; image_url: string | null } | null
 }
 
-// from getInvitationsByUser
 export interface UserInvitation {
     id: string
     org_id: string

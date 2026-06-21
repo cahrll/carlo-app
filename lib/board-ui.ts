@@ -17,7 +17,6 @@ export function priorityMeta(priority?: string): PriorityMeta {
   }
 }
 
-// status dot color, by section title then index
 export function sectionDot(title: string, index: number): string {
   const t = title.toLowerCase()
   if (/done|complete|shipped/.test(t)) return "var(--ok)"
@@ -32,7 +31,7 @@ export function isDoneSection(title: string) {
   return /done|complete|shipped/i.test(title)
 }
 
-// counts + latest task activity from a section(task(updated_at)) embed
+// counts + last activity from the sections/tasks embed
 export function computeBoardProgress(
   sections:
     | { title: string; task?: { updated_at: string }[] | null }[]

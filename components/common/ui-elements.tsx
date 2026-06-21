@@ -3,7 +3,7 @@ import { Slot } from "radix-ui"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
-/* ---- Button ---- */
+// button
 const btn = cva(
   "inline-flex items-center justify-center gap-[7px] font-semibold rounded-md whitespace-nowrap transition-[background,transform,border-color] duration-150 ease-precision active:translate-y-0 disabled:opacity-55 disabled:pointer-events-none [&_svg]:size-[15px]",
   {
@@ -43,7 +43,7 @@ export function Btn({
   )
 }
 
-/* ---- Icon button ---- */
+// icon button
 export function IconBtn({
   className,
   asChild,
@@ -65,7 +65,7 @@ export function IconBtn({
   )
 }
 
-/* ---- Status pill (dot + label) ---- */
+// status pill
 const pillTone = {
   ok: "bg-ok-t text-ok",
   warn: "bg-warn-t text-warn",
@@ -107,7 +107,7 @@ export function Pill({
   )
 }
 
-/* ---- Role badge ---- */
+// role badge
 const roleTone = {
   owner: "bg-acc-t text-acc",
   admin: "bg-admin-t text-admin",
@@ -135,7 +135,7 @@ export function RoleBadge({
   )
 }
 
-/* ---- Toggle switch ---- */
+// toggle
 export function Toggle({
   checked,
   onChange,
@@ -167,7 +167,7 @@ export function Toggle({
   )
 }
 
-/* ---- Presence dot with pulse ---- */
+// presence dot
 export function DotPulse({ className }: { className?: string }) {
   return (
     <span

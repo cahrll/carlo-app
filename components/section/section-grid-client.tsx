@@ -1,10 +1,11 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
+import { useRouter } from "nextjs-toploader/app"
 import { Board, Member, SectionWithTasks, Task } from "@/lib/types"
 import { useSectionGrid } from "@/hooks/use-section-grid"
 import { useAuth } from "@/context/auth-context"
+import { useDeletions } from "@/context/deletions-context"
 import { usePresence } from "@/hooks/use-presence"
 import { sectionDot } from "@/lib/board-ui"
 import { deleteBoard } from "@/lib/services/actions/board"
@@ -70,12 +71,19 @@ const SectionGridClient = ({ board, initialSections, role, members }: Props) => 
   } = useSectionGrid(board, initialSections)
 
   const router = useRouter()
+  const { hide, unhide } = useDeletions()
   const canModify = role === "owner" || role === "admin"
   const canDelete = role === "owner"
 
   const handleDeleteBoard = async () => {
+    hide(currentBoard.id)
     const result = await deleteBoard(currentBoard.id)
-    if (!result.error) router.push(`/organization/${currentBoard.org_id}`)
+    if (result.error) {
+      unhide(currentBoard.id)
+      return result
+    }
+    router.push(`/organization/${currentBoard.org_id}`)
+    return result
   }
 
   const { user, profile } = useAuth()
@@ -204,6 +212,7 @@ const SectionGridClient = ({ board, initialSections, role, members }: Props) => 
               title="Delete board"
               description="This permanently deletes the board and all of its sections and tasks. This cannot be undone."
               confirmLabel="Delete board"
+              pendingLabel="Deleting board..."
               onConfirm={handleDeleteBoard}
             />
           )}

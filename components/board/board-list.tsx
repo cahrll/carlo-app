@@ -19,10 +19,10 @@ import { Content, PageHeader } from "@/components/common/page"
 import { EmptyState } from "@/components/common/empty-state"
 import { Btn } from "@/components/common/ui-elements"
 import { UserAvatar } from "@/components/common/user-avatar"
-import { Kbd } from "@/components/common/kbd"
 import { IconBoard, IconPlus } from "@/components/common/icons"
 import CreateBoardDialog from "./create-board-dialog"
 import BoardsListLoader from "./board-list-loader"
+import { useDeletions } from "@/context/deletions-context"
 
 type BoardsResponse = { error: boolean; message?: string; data?: Board[] }
 
@@ -86,13 +86,6 @@ function BoardListContent() {
                   </Btn>
                 }
               />
-            ) : undefined
-          }
-          hint={
-            canCreate ? (
-              <span>
-                or press <Kbd>B</Kbd> to create a board
-              </span>
             ) : undefined
           }
         />
@@ -184,6 +177,9 @@ function BoardListWithData({
       state.some((b) => b.id === newBoard.id) ? state : [newBoard, ...state]
   )
 
+  const { hidden } = useDeletions()
+  const visibleBoards = optimisticBoards.filter((b) => !hidden.has(b.id))
+
   useEffect(() => {
     const supabase = createClient()
 
@@ -253,7 +249,7 @@ function BoardListWithData({
 
   return (
     <BoardContext.Provider
-      value={{ optimisticBoards, organization, onBoardCreated, canCreate }}
+      value={{ optimisticBoards: visibleBoards, organization, onBoardCreated, canCreate }}
     >
       <BoardListContent />
     </BoardContext.Provider>

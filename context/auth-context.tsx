@@ -9,7 +9,7 @@ import React, {
 } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter } from "nextjs-toploader/app";
 
 interface Profile {
   id: string;
@@ -48,8 +48,7 @@ export function AuthProvider({
   const [loading, setLoading] = useState(!initialUser);
   const [profileLoading, setProfileLoading] = useState(!initialProfile);
 
-  // whose profile is currently loaded; lets us skip refetching on token
-  // refresh / duplicate auth events where the user id has not changed
+  // skip refetch when the loaded profile's user id is unchanged
   const profileUserId = useRef<string | null>(
     initialProfile?.id ?? initialUser?.id ?? null
   );
@@ -121,9 +120,8 @@ export function AuthProvider({
 
     init();
 
-    // Keep this callback synchronous: calling supabase methods directly inside
-    // onAuthStateChange can deadlock supabase-js. Defer the fetch, and skip it
-    // when the user id is unchanged (e.g. TOKEN_REFRESHED / cross-tab sync).
+    // keep sync: awaiting supabase inside onAuthStateChange can deadlock supabase-js.
+    // defer the fetch, skip when the user id is unchanged (token refresh / cross-tab)
     const { data: listener } = supabase.auth.onAuthStateChange((_, session) => {
       const nextUser = session?.user ?? null;
       setUser(nextUser);

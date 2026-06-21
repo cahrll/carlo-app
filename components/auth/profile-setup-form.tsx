@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter } from "nextjs-toploader/app"
 import { setupProfile } from "@/lib/services/actions/profile"
 import { FlowShell, FlowTitle, FlowLead } from "@/components/common/flow"
 import { Btn } from "@/components/common/ui-elements"
@@ -22,7 +22,6 @@ const ProfileSetupForm = () => {
       await setupProfile(name)
     } catch {
     } finally {
-      setIsLoading(false)
       router.push("/")
     }
   }

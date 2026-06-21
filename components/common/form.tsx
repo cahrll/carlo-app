@@ -64,7 +64,7 @@ export function Field({
   )
 }
 
-/** input with a leading icon */
+// input with leading icon
 export function InputWrap({
   icon,
   children,
@@ -80,7 +80,7 @@ export function InputWrap({
   )
 }
 
-/** Compact segmented control. */
+// compact segmented control
 export function Segmented<T extends string>({
   options,
   value,

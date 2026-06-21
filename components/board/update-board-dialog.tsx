@@ -23,6 +23,7 @@ export default function UpdateBoardDialog({
   trigger: React.ReactNode
 }) {
   const [open, setOpen] = useState(false)
+  const [busy, setBusy] = useState(false)
 
   const form = useForm<FormData>({
     resolver: zodResolver(updateBoardSchema),
@@ -33,8 +34,12 @@ export default function UpdateBoardDialog({
   })
 
   async function handleUpdateBoard(data: FormData) {
+    setBusy(true)
     const { error } = await updateBoard(board.id, data)
-    if (error) return
+    if (error) {
+      setBusy(false)
+      return
+    }
     onUpdated?.({ ...board, title: data.title, description: data.description })
     setOpen(false)
   }
@@ -44,11 +49,13 @@ export default function UpdateBoardDialog({
       open={open}
       onOpenChange={(v) => {
         setOpen(v)
-        if (v)
+        if (v) {
+          setBusy(false)
           form.reset({
             title: board.title,
             description: board.description ?? "",
           })
+        }
       }}
       title="Edit board"
       description="Rename this board or change its description."
@@ -62,9 +69,9 @@ export default function UpdateBoardDialog({
           <Btn
             type="submit"
             form="update-board-form"
-            disabled={form.formState.isSubmitting}
+            disabled={busy}
           >
-            {form.formState.isSubmitting ? "Saving..." : "Save changes"}
+            {busy ? "Saving..." : "Save changes"}
           </Btn>
         </>
       }

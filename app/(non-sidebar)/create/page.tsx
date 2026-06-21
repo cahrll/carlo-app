@@ -1,9 +1,10 @@
 "use client"
 
+import { useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import z from "zod"
-import { useRouter } from "next/navigation"
+import { useRouter } from "nextjs-toploader/app"
 import { createOrganizationSchema } from "@/lib/schemas/organization"
 import { createOrganization } from "@/lib/services/actions/organization"
 import { FlowShell, FlowTitle, FlowLead } from "@/components/common/flow"
@@ -15,15 +16,20 @@ type FormData = z.infer<typeof createOrganizationSchema>
 
 const CreatePage = () => {
   const router = useRouter()
+  const [redirecting, setRedirecting] = useState(false)
 
   const form = useForm<FormData>({
     resolver: zodResolver(createOrganizationSchema),
     defaultValues: { name: "" },
   })
 
+  const busy = form.formState.isSubmitting || redirecting
+
   async function handleCreateOrganization(data: FormData) {
     const { error } = await createOrganization(data)
-    if (!error) router.push("/")
+    if (error) return
+    setRedirecting(true)
+    router.push("/")
   }
 
   return (
@@ -48,8 +54,8 @@ const CreatePage = () => {
             </Field>
           )}
         />
-        <Btn block type="submit" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? "Creating..." : "Create and continue"}
+        <Btn block type="submit" disabled={busy}>
+          {busy ? "Creating..." : "Create and continue"}
           <IconRight />
         </Btn>
       </form>

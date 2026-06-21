@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { useAuth } from "@/context/auth-context"
+import { useDeletions } from "@/context/deletions-context"
 import { UserAvatar } from "@/components/common/user-avatar"
 import {
   IconBoard,
@@ -80,6 +81,8 @@ export function Sidebar({
 }) {
   const pathname = usePathname()
   const { profile, logout } = useAuth()
+  const { hidden } = useDeletions()
+  const visibleBoards = boards.filter((b) => !hidden.has(b.id))
   const base = `/organization/${orgId}`
 
   const isBoards = pathname === base || pathname.startsWith(`${base}/board`)
@@ -117,7 +120,7 @@ export function Sidebar({
             {orgName}
           </span>
           <span className="block font-mono text-[10.5px] text-faint">
-            {boards.length} boards
+            {visibleBoards.length} boards
           </span>
         </span>
         <IconDots className="ml-auto text-faint size-4" />
@@ -130,7 +133,7 @@ export function Sidebar({
           icon={<IconBoard />}
           label="Boards"
           active={isBoards}
-          count={boards.length}
+          count={visibleBoards.length}
           onNavigate={onNavigate}
         />
         <NavLink
@@ -173,7 +176,7 @@ export function Sidebar({
         )}
       </div>
       <div className="flex flex-col gap-px overflow-y-auto">
-        {boards.map((b) => (
+        {visibleBoards.map((b) => (
           <Link
             key={b.id}
             href={`${base}/board/${b.id}`}

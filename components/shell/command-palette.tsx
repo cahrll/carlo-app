@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
+import { useRouter } from "nextjs-toploader/app"
 import {
   CommandDialog,
   CommandEmpty,
@@ -9,7 +9,6 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-  CommandShortcut,
 } from "@/components/ui/command"
 import {
   IconBoard,
@@ -21,6 +20,7 @@ import {
   IconSearch,
   IconHash,
 } from "@/components/common/icons"
+import { Kbd } from "@/components/common/kbd"
 import { useCommandStore } from "@/components/shell/command-store"
 import type { Board, ChatRoomWithLatest } from "@/lib/types"
 
@@ -60,13 +60,10 @@ export function CommandPalette({
     <CommandDialog open={open} onOpenChange={setOpen}>
       <div className="flex items-center gap-[11px] px-4 py-[14px] border-b border-line">
         <IconSearch className="size-[17px] text-faint" />
-        <CommandInput placeholder="Search boards, tasks, people, or run a command" />
-        <span className="font-mono text-[10px] text-faint border border-line rounded-[5px] px-[6px] py-[2px]">
-          ESC
-        </span>
+        <CommandInput placeholder="Search or jump to..." />
       </div>
       <CommandList>
-        <CommandEmpty>No results.</CommandEmpty>
+        <CommandEmpty>No matches.</CommandEmpty>
 
         <CommandGroup heading="Navigate">
           <CommandItem onSelect={() => run(base)}>
@@ -76,7 +73,6 @@ export function CommandPalette({
             <span className="flex-1 min-w-0 font-medium text-[13px]">
               Go to Boards
             </span>
-            <CommandShortcut>G B</CommandShortcut>
           </CommandItem>
           <CommandItem onSelect={() => run(`${base}/inbox`)}>
             <Tile>
@@ -85,7 +81,6 @@ export function CommandPalette({
             <span className="flex-1 min-w-0 font-medium text-[13px]">
               Go to Inbox
             </span>
-            <CommandShortcut>G I</CommandShortcut>
           </CommandItem>
           <CommandItem onSelect={() => run(`${base}/members`)}>
             <Tile>
@@ -94,7 +89,6 @@ export function CommandPalette({
             <span className="flex-1 min-w-0 font-medium text-[13px]">
               Go to Members
             </span>
-            <CommandShortcut>G M</CommandShortcut>
           </CommandItem>
           <CommandItem onSelect={() => run(`${base}/settings`)}>
             <Tile>
@@ -103,7 +97,6 @@ export function CommandPalette({
             <span className="flex-1 min-w-0 font-medium text-[13px]">
               Open Settings
             </span>
-            <CommandShortcut>G S</CommandShortcut>
           </CommandItem>
         </CommandGroup>
 
@@ -116,7 +109,6 @@ export function CommandPalette({
               <span className="flex-1 min-w-0 font-medium text-[13px]">
                 Create board
               </span>
-              <CommandShortcut>B</CommandShortcut>
             </CommandItem>
           )}
           {canManage && (
@@ -127,7 +119,6 @@ export function CommandPalette({
               <span className="flex-1 min-w-0 font-medium text-[13px]">
                 Invite member
               </span>
-              <CommandShortcut>I</CommandShortcut>
             </CommandItem>
           )}
           <CommandItem onSelect={() => run(`${base}/inbox?compose=room`)}>
@@ -137,7 +128,6 @@ export function CommandPalette({
             <span className="flex-1 min-w-0 font-medium text-[13px]">
               New room
             </span>
-            <CommandShortcut>R</CommandShortcut>
           </CommandItem>
         </CommandGroup>
 
@@ -179,6 +169,22 @@ export function CommandPalette({
           </CommandGroup>
         )}
       </CommandList>
+
+      <div className="flex items-center gap-[14px] px-4 py-[9px] border-t border-line font-mono text-[10px] text-faint">
+        <span className="flex items-center gap-[5px]">
+          <Kbd>↑</Kbd>
+          <Kbd>↓</Kbd>
+          navigate
+        </span>
+        <span className="flex items-center gap-[5px]">
+          <Kbd>↵</Kbd>
+          select
+        </span>
+        <span className="flex items-center gap-[5px]">
+          <Kbd>esc</Kbd>
+          close
+        </span>
+      </div>
     </CommandDialog>
   )
 }

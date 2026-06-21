@@ -5,6 +5,7 @@ import { useParams } from "next/navigation"
 import Link from "next/link"
 import { cn, timeAgo } from "@/lib/utils"
 import { useOrg } from "@/context/org-context"
+import { useDeletions } from "@/context/deletions-context"
 import CreateRoomDialog from "./create-room-dialog"
 import { IconHash, IconSearch } from "@/components/common/icons"
 import { InputWrap, Input } from "@/components/common/form"
@@ -22,8 +23,10 @@ export default function ConversationList({
   const [search, setSearch] = useState("")
   const { roomId } = useParams<{ roomId?: string }>()
   const { orgId } = useOrg()
+  const { hidden } = useDeletions()
 
-  const filtered = rooms.filter((room) =>
+  const visibleRooms = rooms.filter((room) => !hidden.has(room.id))
+  const filtered = visibleRooms.filter((room) =>
     room.name.toLowerCase().includes(search.toLowerCase())
   )
 
@@ -57,7 +60,7 @@ export default function ConversationList({
       <div className="flex-1 overflow-y-auto px-2 pb-[10px] flex flex-col gap-px">
         {filtered.length === 0 && (
           <p className="font-mono text-[11px] text-faint text-center py-8">
-            {rooms.length === 0 ? "No conversations yet" : "No results"}
+            {visibleRooms.length === 0 ? "No conversations yet" : "No results"}
           </p>
         )}
         {filtered.map((room) => {
