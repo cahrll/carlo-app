@@ -1,42 +1,35 @@
 # Carlo
 
-A full-stack, multi-tenant project management platform built with **Next.js 16**, **React 19**, and **Supabase**. Organizations can create Kanban boards, manage tasks with drag-and-drop, invite team members by email, and collaborate in real time -- all behind passwordless magic-link authentication.
+Carlo is a multi-tenant project management app. Teams spin up organizations, run Kanban boards, drag tasks around, invite people by email, and chat in real time. Sign-in is passwordless (magic link). It is built on Next.js 16, React 19, and Supabase.
 
-> **Live site:** _https://carlo-app-indol.vercel.app_ &nbsp;|&nbsp; **Built by:** Cahrl Louize Loyloy
+Live site: https://carlo-app-indol.vercel.app
+Built by Cahrl Louize Loyloy
 
----
+## What it does
 
-## Highlights
+- Create organizations and switch between them. Each one is its own workspace with separate boards, members, and roles.
+- Kanban boards with drag-and-drop. New boards start with To Do, In Progress, Testing, and Done, and you can add your own sections. Moves and reorders persist to the database.
+- Tasks with a title, description, assignee, due date, and priority.
+- Real-time everywhere. Board and task changes stream to everyone viewing the board, and chat shows live messages plus who is online.
+- Per-room team chat with member management.
+- Invite teammates by email as an admin or a member, then accept from an invites page.
+- Optimistic UI. Sections, tasks, comments, and messages show up instantly and roll back if the server rejects them.
+- A command palette (Cmd/Ctrl+K) and a top progress bar on navigation.
 
-- **Multi-tenant architecture** -- users create and switch between organizations, each with isolated boards, members, and permissions.
-- **Kanban boards with drag-and-drop** -- powered by dnd-kit with optimistic UI updates and server-side persistence.
-- **Real-time collaboration** -- Supabase Realtime powers live board updates, task/section syncing, and team messaging with presence indicators.
-- **Team messaging** -- full chat system with chat rooms, member management, broadcast-based live message delivery, and online presence tracking.
-- **Passwordless auth** -- Supabase magic-link OTP flow with automatic session refresh and profile gating via Next.js proxy middleware.
-- **Server Actions everywhere** -- zero REST API routes; all mutations go through type-safe, Zod-validated server actions with `revalidatePath`.
-- **Role-based invitation system** -- invite members by email (admin/member roles), accept invitations, with duplicate prevention and atomic acceptance via Postgres RPC.
-- **Optimistic UI** -- React 19 `useOptimistic` for instant section creation; local state for instant task creation with automatic rollback on failure.
-- **Dark mode** -- system-aware theme toggle with `next-themes`.
-
----
-
-## Tech Stack
+## Tech stack
 
 | Layer | Technology |
 |---|---|
-| **Framework** | [Next.js 16](https://nextjs.org/) (App Router, Server Components, Server Actions, Proxy) |
-| **UI** | [React 19](https://react.dev/) with `useOptimistic`, `useTransition` |
-| **Language** | TypeScript 5 (strict) |
-| **Styling** | [Tailwind CSS v4](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/) (New York theme) |
-| **Components** | [Radix UI](https://www.radix-ui.com/) primitives, [Lucide](https://lucide.dev/) icons, CVA variants |
-| **Forms** | [React Hook Form](https://react-hook-form.com/) + [Zod 4](https://zod.dev/) schema validation |
-| **Drag & Drop** | [@dnd-kit](https://dndkit.com/) (core + sortable) |
-| **Backend / DB** | [Supabase](https://supabase.com/) (PostgreSQL, Auth, Row-Level Security, RPC, Realtime) |
-| **Real-time** | Supabase Realtime -- Postgres Changes (boards, sections, tasks), Broadcast + Presence (chat) |
-| **Auth** | Supabase Auth -- email magic-link OTP, cookie-based SSR sessions |
-| **Theming** | [next-themes](https://github.com/pacocoursey/next-themes) (class strategy) |
-
----
+| Framework | [Next.js 16](https://nextjs.org/) (App Router, Server Components, Server Actions, Proxy) |
+| UI | [React 19](https://react.dev/) with `useOptimistic` and `useTransition` |
+| Language | TypeScript 5 (strict) |
+| Styling | [Tailwind CSS v4](https://tailwindcss.com/) with [shadcn/ui](https://ui.shadcn.com/) primitives |
+| Components | [Radix UI](https://www.radix-ui.com/), [Lucide](https://lucide.dev/) icons, CVA variants |
+| Forms | [React Hook Form](https://react-hook-form.com/) with [Zod 4](https://zod.dev/) schemas |
+| Drag and drop | [@dnd-kit](https://dndkit.com/) (core and sortable) |
+| Backend and DB | [Supabase](https://supabase.com/) (PostgreSQL, Auth, Row-Level Security, RPC, Realtime) |
+| Auth | Supabase Auth, email magic-link OTP, cookie-based SSR sessions |
+| Look and feel | Dark-only theme, Inter for text and JetBrains Mono for code and labels |
 
 ## Architecture
 
@@ -53,8 +46,8 @@ A full-stack, multi-tenant project management platform built with **Next.js 16**
 ┌────────────────────────▼────────────────────────────────┐
 │                   Next.js 16 Server                     │
 │  Proxy (session refresh + auth redirect)                │
-│  Server Actions (Zod validation → Supabase mutations)   │
-│  Server Components (data fetching → RSC streaming)      │
+│  Server Actions (Zod validation, Supabase mutations)    │
+│  Server Components (data fetching, RSC streaming)       │
 └────────────────────────┬────────────────────────────────┘
                          │  PostgREST / Auth / RPC / Realtime
 ┌────────────────────────▼────────────────────────────────┐
@@ -63,127 +56,109 @@ A full-stack, multi-tenant project management platform built with **Next.js 16**
 └─────────────────────────────────────────────────────────┘
 ```
 
-### Key architectural decisions
+A few decisions worth calling out:
 
-1. **Proxy-based middleware** -- Next.js 16 replaces traditional middleware with a `proxy.ts` entry point. Session refresh and auth gating (unauthenticated redirect, profile-setup gate) are handled here before any page renders.
+1. Proxy instead of classic middleware. Next.js 16 uses a `proxy.ts` entry point. Session refresh and the auth gates (redirect when signed out, force profile setup on first run) happen there before a page renders.
 
-2. **No API routes** -- The entire mutation surface uses Server Actions (`'use server'`), keeping the network boundary thin and type-safe. The only Route Handler is `/auth/confirm` for OTP token verification.
+2. No REST API routes. Every mutation is a Server Action (`'use server'`), validated with Zod. The only Route Handler is `/auth/confirm`, which verifies the magic-link token.
 
-3. **Service layer separation** -- `lib/services/` cleanly splits into `queries/` (read-only server fetchers) and `actions/` (write mutations), with `getCurrentUser()` as a shared auth guard.
+3. The service layer is split. `lib/services/queries/` holds read-only server fetchers, `lib/services/actions/` holds the writes, and `lib/services/authz.ts` holds the permission gates. `getCurrentUser()` is the shared auth guard.
 
-4. **Optimistic updates with rollback** -- The `useSectionGrid` hook uses React 19's `useOptimistic` for sections and manual optimistic state for tasks. Failed mutations automatically roll back the UI to the server state.
+4. Optimistic updates with rollback. `useSectionGrid` uses React 19 `useOptimistic` for sections and local state for tasks. A failed mutation reverts the UI back to server state. Deletions go through a small deletions context so a row can hide instantly and come back if the delete fails.
 
-5. **Atomic invitation acceptance** -- Invitation acceptance is delegated to a Postgres RPC (`accept_organization_invitation`) to guarantee atomicity and enforce security constraints at the database level.
+5. Realtime in three shapes. Board lists subscribe to `postgres_changes` scoped by `org_id`. A board's sections and tasks subscribe to `postgres_changes` scoped by `board_id` and refetch on change (debounced). Chat uses broadcast for messages and presence for online status, one channel per room.
 
-6. **Three-tier Realtime strategy** -- Board lists use `postgres_changes` scoped by `org_id`; board detail (sections + tasks) uses `postgres_changes` scoped by `board_id`; chat uses broadcast + presence channels per room for low-latency message delivery and online indicators.
+6. Some writes go through Postgres RPCs. Invitation acceptance, organization deletion, and chat room creation and membership are RPCs, which keeps those multi-row writes atomic.
 
-7. **Chat via Postgres RPCs** -- Room creation (`create_chat_room`) and member management (`add_chat_room_members`) are delegated to Postgres RPCs, keeping membership logic atomic and secure at the database level.
-
----
-
-## Project Structure
+## Project structure
 
 ```
 carlo-app/
 ├── app/
-│   ├── (non-sidebar)/            # Pages without sidebar (home, profile, invites)
-│   │   ├── page.tsx              # Home -- organization list
-│   │   ├── create/               # Create new organization
-│   │   ├── profile/              # Edit user profile
-│   │   └── invites/              # Pending invitations for current user
-│   ├── (sidebar)/                # Pages with sidebar + org context
+│   ├── (non-sidebar)/                # full-screen flows
+│   │   ├── page.tsx                  # home: your organizations
+│   │   ├── create/                   # create an organization
+│   │   ├── profile/                  # edit your profile
+│   │   └── invites/                  # invitations addressed to you
+│   ├── (sidebar)/                    # app shell with sidebar + org context
 │   │   └── organization/[orgId]/
-│   │       ├── page.tsx          # Boards list
-│   │       ├── board/[boardId]/  # Kanban board (sections + tasks)
-│   │       ├── members/          # Member management + invitations
-│   │       ├── settings/         # Organization settings
-│   │       └── inbox/            # Real-time team messaging
+│   │       ├── page.tsx              # boards in the org
+│   │       ├── board/[boardId]/      # a board (sections + tasks)
+│   │       ├── members/              # members + invitations
+│   │       ├── settings/             # org settings
+│   │       └── inbox/                # chat rooms + messages
 │   ├── auth/
-│   │   ├── login/                # Magic-link login
-│   │   ├── setup/                # Profile name setup (first-time)
-│   │   └── confirm/route.ts      # OTP verification endpoint
-│   └── layout.tsx                # Root layout (fonts, providers, metadata)
+│   │   ├── login/                    # magic-link login
+│   │   ├── setup/                    # first-run profile name
+│   │   └── confirm/route.ts          # OTP verification endpoint
+│   └── layout.tsx                    # root layout (fonts, top loader, providers)
 ├── components/
-│   ├── auth/                     # Login form, profile setup form
-│   ├── board/                    # Board list, board header, CRUD forms
-│   ├── section/                  # Section grid, droppable sections, CRUD forms
-│   ├── task/                     # Task items, sortable tasks, overlay, CRUD forms
-│   ├── organization/             # Org list, settings form, invite dialog
-│   ├── inbox/                    # Chat view, conversation list, room/member dialogs
-│   ├── invitation/               # Accept/decline invitation actions
-│   ├── profile/                  # Profile edit form
-│   ├── sidebar/                  # App sidebar, nav, org switcher, user button
-│   └── ui/                       # shadcn/ui primitives (button, dialog, card, etc.)
+│   ├── auth/                         # login + profile-setup forms
+│   ├── board/                        # board list, create/update dialogs
+│   ├── section/                      # section grid, drag-and-drop, forms
+│   ├── task/                         # task cards, sortable items, detail sheet
+│   ├── organization/                 # org list, settings, invite dialog
+│   ├── inbox/                        # chat view, conversation list, room dialogs
+│   ├── invitation/                   # accept/decline actions
+│   ├── profile/                      # profile form
+│   ├── shell/                        # app shell, sidebar, topbar, command palette
+│   ├── common/                       # shared UI (buttons, modal, form, avatar, icons)
+│   └── ui/                           # shadcn primitives
 ├── context/
-│   ├── auth-context.tsx          # Current user + profile provider
-│   └── org-context.tsx           # Active organization context
+│   ├── auth-context.tsx              # current user + profile
+│   ├── org-context.tsx               # active organization
+│   └── deletions-context.tsx         # optimistic delete + rollback bookkeeping
 ├── hooks/
-│   ├── use-section-grid.ts       # DnD + optimistic state + Realtime for Kanban boards
-│   ├── use-realtime-chat.ts      # Broadcast + Presence for live chat messaging
-│   └── use-mobile.ts             # Responsive breakpoint hook
+│   ├── use-board-realtime.ts         # live sections/tasks for a board
+│   ├── use-section-grid.ts           # drag-and-drop + optimistic board state
+│   ├── use-task-comments.ts          # task comments: load, live stream, optimistic post
+│   ├── use-realtime-chat.ts          # broadcast chat messaging
+│   └── use-presence.ts               # channel presence (who is online)
 ├── lib/
-│   ├── client.ts                 # Supabase browser client
-│   ├── server.ts                 # Supabase server client (cookie-aware)
-│   ├── middleware.ts              # Session refresh + auth redirect logic
-│   ├── types.ts                  # Domain type definitions
-│   ├── utils.ts                  # cn() utility
-│   ├── schemas/                  # Zod validation schemas per domain (board, section, task, chat)
-│   └── services/
-│       ├── getCurrentUser.ts     # Auth guard (shared by actions + queries)
-│       ├── actions/              # Server Actions (create, update, move, delete)
-│       └── queries/              # Server-only data fetchers
-└── proxy.ts                      # Next.js 16 proxy entry (calls updateSession)
+│   ├── supabase/
+│   │   ├── client.ts                 # browser client (anon key)
+│   │   ├── server.ts                 # server client (cookie-aware)
+│   │   └── middleware.ts             # session refresh + auth redirect
+│   ├── services/
+│   │   ├── queries/                  # server-only reads (incl. current-user, member)
+│   │   ├── actions/                  # server actions (create/update/move/delete)
+│   │   └── authz.ts                  # permission gates (canAccess/canModify/isOwner)
+│   ├── schemas/                      # Zod schemas per domain
+│   ├── board-ui.ts                   # board/section display helpers
+│   ├── types.ts                      # domain types
+│   └── utils.ts                      # date and misc helpers
+└── proxy.ts                          # Next.js 16 proxy (session refresh entry)
 ```
 
----
-
-## Features in Detail
+## Features in detail
 
 ### Organizations
-Create, rename, and switch between organizations. Each org is an isolated workspace with its own boards, members, and settings. The sidebar provides an org switcher for quick navigation.
+Create, rename, and switch between organizations. Each one is an isolated workspace with its own boards, members, and settings. The sidebar has an org switcher.
 
-### Kanban Boards
-Each organization can have multiple boards. Boards are initialized with default sections (To Do, In Progress, Testing, Done) and support custom sections. Tasks within sections can be dragged and dropped to reorder or move across sections, with changes persisted to the database.
+### Kanban boards
+An org can have many boards. Each new board starts with the default sections (To Do, In Progress, Testing, Done) and you can add more. Tasks drag and drop to reorder or move between sections, and the new order is saved.
 
-### Task Management
-Tasks support:
-- **Title and description**
-- **Assignee** -- assign to any org member
-- **Due date** -- date picker integration
-- **Priority levels** -- visual priority indicators
-- **Drag-and-drop reordering** -- within and across sections
+### Tasks
+A task has a title, description, assignee (any org member), due date, and priority. Open a task to see its details and comments, and edit it inline.
 
-### Team Collaboration
-- Invite members by email with role selection (admin or member)
-- Duplicate invite prevention at the application level
-- Accept invitations from a dedicated invitations page
-- Member list with profile details
+### Team collaboration
+Invite members by email as an admin or a member. Duplicate invites are blocked, and there is a dedicated page to accept invitations. Members are listed with their profile details.
 
-### Real-time Messaging
-Each organization has a built-in messaging system:
-- **Chat rooms** -- create named rooms and add organization members
-- **Live message delivery** -- messages are persisted via server actions and broadcast to connected clients in real time
-- **Online presence** -- see how many users are currently active in a room via Supabase Presence
-- **Member management** -- add members to rooms after creation with a dedicated dialog
-- **Conversation list** -- rooms sorted by latest activity with search filtering
+### Real-time messaging
+Each org has built-in chat. Create named rooms and add members, send messages that broadcast to everyone connected, and see how many people are currently in a room through Supabase Presence. The conversation list sorts by latest activity and has a search filter.
 
-### Real-time Updates
-The platform uses Supabase Realtime across three layers:
-- **Board list** -- `postgres_changes` on the `board` table scoped by organization; any board creation, update, or deletion is reflected live for all org members
-- **Board detail** -- `postgres_changes` on `board`, `section`, and `task` tables scoped by board; section and task changes (including cross-section moves) trigger automatic refetches
-- **Chat** -- broadcast channels per room for instant message delivery; presence channels for online user tracking
+### Real-time board updates
+Board lists update when any board in the org is created, changed, or removed. Inside a board, section and task changes (including cross-section moves) trigger a debounced refetch so everyone stays in sync.
 
-### Authentication Flow
-1. User enters email on the login page
-2. Supabase sends a magic-link OTP
-3. User clicks the link, hitting `/auth/confirm` which verifies the token
-4. Proxy middleware checks if the user has a profile name set
-5. First-time users are redirected to `/auth/setup` to complete their profile
-6. Subsequent visits are automatically authenticated via cookie-based sessions
+### Authentication flow
+1. Enter your email on the login page.
+2. Supabase sends a magic-link OTP.
+3. Clicking the link hits `/auth/confirm`, which verifies the token.
+4. The proxy checks whether your profile name is set.
+5. First-time users go to `/auth/setup` to finish their profile.
+6. After that, cookie-based sessions keep you signed in.
 
----
-
-## Data Model
+## Data model
 
 ```
 user_profile
@@ -196,23 +171,23 @@ user_profile
 organization
 ├── id (PK)
 ├── name
-├── owner_id → user_profile.id
+├── owner_id -> user_profile.id
 └── timestamps
 
 organization_member
-├── org_id → organization.id
-├── member_id → user_profile.id
+├── org_id -> organization.id
+├── member_id -> user_profile.id
 ├── role (owner | admin | member)
-├── status
+├── status (pending | accepted)
 └── created_at
 
 organization_invitation
 ├── id (PK)
-├── org_id → organization.id
+├── org_id -> organization.id
 ├── email
 ├── role
 ├── status (pending | accepted)
-├── invited_by → user_profile.id
+├── invited_by -> user_profile.id
 ├── expires_at
 └── timestamps
 
@@ -220,114 +195,105 @@ board
 ├── id (PK)
 ├── title
 ├── description
-├── org_id → organization.id
-├── creator_id → user_profile.id
+├── org_id -> organization.id
+├── creator_id -> user_profile.id
 └── timestamps
 
 section
 ├── id (PK)
 ├── title
 ├── sort_order
-├── board_id → board.id
-├── creator_id → user_profile.id
+├── board_id -> board.id
+├── creator_id -> user_profile.id
 └── created_at
 
 task
 ├── id (PK)
 ├── title
 ├── description
-├── section_id → section.id
+├── section_id -> section.id
 ├── sort_order
-├── creator_id → user_profile.id
-├── assignee_id → user_profile.id
+├── creator_id -> user_profile.id
+├── assignee_id -> user_profile.id
 ├── due_date
-├── priority
+├── priority (low | medium | high)
 └── timestamps
+
+task_comment
+├── id (PK)
+├── task_id -> task.id
+├── author_id -> user_profile.id
+├── text
+└── created_at
 
 chat_room
 ├── id (PK)
 ├── name
-├── org_id → organization.id
-├── created_by → user_profile.id
+├── org_id -> organization.id
+├── created_by -> user_profile.id
 └── timestamps
 
 chat_room_member
-├── chat_room_id → chat_room.id
-├── member_id → user_profile.id
+├── chat_room_id -> chat_room.id
+├── member_id -> user_profile.id
 ├── role
 └── joined_at
 
 message
 ├── id (PK)
-├── chat_room_id → chat_room.id
-├── author_id → user_profile.id
+├── chat_room_id -> chat_room.id
+├── author_id -> user_profile.id
 ├── text
 └── created_at
 ```
 
----
-
-## Getting Started
+## Getting started
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) 18+
-- A [Supabase](https://supabase.com/) project (free tier works)
+- [Node.js](https://nodejs.org/) 20 or newer (Next.js 16 requires it).
+- A [Supabase](https://supabase.com/) project (the free tier is fine).
 
 ### Setup
 
-1. **Clone the repository**
+1. Clone and install.
 
    ```bash
    git clone https://github.com/your-username/carlo-app.git
    cd carlo-app
-   ```
-
-2. **Install dependencies**
-
-   ```bash
    npm install
    ```
 
-3. **Configure environment variables**
-
-   Create a `.env.local` file in the root:
+2. Add environment variables. Create `.env.local` in the root:
 
    ```env
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
    ```
 
-4. **Set up the database**
+   Only the public anon key belongs here. The service-role key should never be in the app.
 
-   In your Supabase dashboard, create the tables described in the [Data Model](#data-model) section and enable Row-Level Security. Create the following RPC functions:
-   - `accept_organization_invitation` -- atomic invitation acceptance
-   - `create_chat_room` -- atomic chat room creation with initial membership
-   - `add_chat_room_members` -- add members to an existing chat room
+3. Set up the database. The schema and Row-Level Security live in the Supabase dashboard. Create the tables from the [Data model](#data-model) section, enable RLS, and add the RPC functions the actions call: `accept_organization_invitation`, `create_chat_room`, `add_chat_room_members`, `delete_chat_room`, and `delete_organization`. Then enable Realtime on `board`, `section`, `task`, and `task_comment` (chat uses broadcast channels, so the `message` table does not need it).
 
-   Enable **Realtime** on the `board`, `section`, and `task` tables for live board updates.
-
-5. **Start the development server**
+4. Run it.
 
    ```bash
    npm run dev
    ```
 
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
+   Open http://localhost:3000.
 
 ### Scripts
 
 | Command | Description |
 |---|---|
-| `npm run dev` | Start development server |
-| `npm run build` | Create production build |
-| `npm run start` | Start production server |
+| `npm run dev` | Start the dev server |
+| `npm run build` | Production build |
+| `npm run start` | Start the production server |
 | `npm run lint` | Run ESLint |
-
----
 
 ## Roadmap
 
-- [x] ~~Real-time messaging (replace mock data with Supabase Realtime)~~
-- [x] ~~Real-time board updates (Supabase Realtime subscriptions)~~
-- [ ] Real-time conversation list updates (live sidebar refresh on new messages)
+- [x] Real-time team messaging
+- [x] Real-time board updates
+- [ ] Live conversation list (refresh the sidebar on new messages without reopening a room)
