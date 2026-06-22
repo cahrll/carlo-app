@@ -73,14 +73,14 @@ const LoginForm = () => {
       </div>
       <FlowTitle>Sign in to Carlo</FlowTitle>
       <FlowLead>
-        Enter your work email and we will send a one-time link. No passwords to
+        Enter your email and we will send a one-time link. No passwords to
         remember.
       </FlowLead>
       <form
         onSubmit={handleMagicLink}
         className="flex flex-col gap-[15px] mt-[22px]"
       >
-        <Field label="Work email" hint={message || undefined}>
+        <Field label="Email" hint={message || undefined}>
           <InputWrap icon={<IconMail />}>
             <Input
               mono
