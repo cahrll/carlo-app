@@ -1,20 +1,20 @@
 # Carlo
 
-Carlo is a multi-tenant project management app. Teams spin up organizations, run Kanban boards, drag tasks around, invite people by email, and chat in real time. Sign-in is passwordless (magic link). It is built on Next.js 16, React 19, and Supabase.
+Carlo is a multi-tenant project management app. Teams create organizations, open Kanban boards, drag tasks around, invite people by email, and chat in real time. No passwords, just a magic link to sign in. It runs on Next.js 16, React 19, and Supabase.
 
 Live site: https://carlo-app-indol.vercel.app
 Built by Cahrl Louize Loyloy
 
 ## What it does
 
-- Create organizations and switch between them. Each one is its own workspace with separate boards, members, and roles.
-- Kanban boards with drag-and-drop. New boards start with To Do, In Progress, Testing, and Done, and you can add your own sections. Moves and reorders persist to the database.
-- Tasks with a title, description, assignee, due date, and priority.
-- Real-time everywhere. Board and task changes stream to everyone viewing the board, and chat shows live messages plus who is online.
-- Per-room team chat with member management.
-- Invite teammates by email as an admin or a member, then accept from an invites page.
-- Optimistic UI. Sections, tasks, comments, and messages show up instantly and roll back if the server rejects them.
-- A command palette (Cmd/Ctrl+K) and a top progress bar on navigation.
+- Organizations you can create and switch between. Each is its own workspace with separate boards, members, and roles.
+- Kanban boards with drag-and-drop. A new board comes with To Do, In Progress, Testing, and Done, and you can add sections of your own. Moves and reorders are saved to the database.
+- Tasks that hold a title, description, assignee, due date, and priority.
+- Real-time updates. Move a task or change a board and everyone watching sees it, and chat shows new messages as they land plus who is online.
+- Team chat, one conversation per room, with member management.
+- Email invites. Bring someone in as an admin or a member, and they accept from their invites page.
+- Optimistic UI. Sections, tasks, comments, and messages show up the moment you act and roll back if the server says no.
+- A command palette on Cmd/Ctrl+K, and a progress bar across the top while a page loads.
 
 ## Tech stack
 
@@ -33,130 +33,34 @@ Built by Cahrl Louize Loyloy
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                        Client                           │
-│  React 19 · shadcn/ui · dnd-kit · React Hook Form       │
-│  Supabase Realtime (Postgres Changes, Broadcast,        │
-│  Presence)                                              │
-└────────────────────────┬────────────────────────────────┘
-                         │  Server Actions (mutations)
-                         │  Server Components (queries)
-                         │  WebSocket (Realtime channels)
-┌────────────────────────▼────────────────────────────────┐
-│                   Next.js 16 Server                     │
-│  Proxy (session refresh + auth redirect)                │
-│  Server Actions (Zod validation, Supabase mutations)    │
-│  Server Components (data fetching, RSC streaming)       │
-└────────────────────────┬────────────────────────────────┘
-                         │  PostgREST / Auth / RPC / Realtime
-┌────────────────────────▼────────────────────────────────┐
-│                      Supabase                           │
-│  PostgreSQL · Row-Level Security · Auth · Realtime      │
-└─────────────────────────────────────────────────────────┘
-```
+A few choices that shaped the code:
 
-A few decisions worth calling out:
+1. Proxy instead of classic middleware. Next.js 16 hands this off to a `proxy.ts` entry point, so that is where session refresh and the auth gates live: redirect you to login when you are signed out, push you to profile setup on a first run. All of it before the page renders.
 
-1. Proxy instead of classic middleware. Next.js 16 uses a `proxy.ts` entry point. Session refresh and the auth gates (redirect when signed out, force profile setup on first run) happen there before a page renders.
+2. No REST API routes. Every mutation is a Server Action (`'use server'`) with a Zod schema in front of it. The only Route Handler in the whole app is `/auth/confirm`, which verifies the magic-link token.
 
-2. No REST API routes. Every mutation is a Server Action (`'use server'`), validated with Zod. The only Route Handler is `/auth/confirm`, which verifies the magic-link token.
+3. Reads, writes, and permissions stay separate. `lib/services/queries/` fetches data, `lib/services/actions/` changes it, and `lib/services/authz.ts` decides who is allowed to. They all share one auth guard, `getCurrentUser()`.
 
-3. The service layer is split. `lib/services/queries/` holds read-only server fetchers, `lib/services/actions/` holds the writes, and `lib/services/authz.ts` holds the permission gates. `getCurrentUser()` is the shared auth guard.
+4. Optimistic updates that can undo themselves. `useSectionGrid` uses React 19's `useOptimistic` for sections and local state for tasks. If a mutation fails, the UI snaps back to the last thing the server confirmed. Deletions run through a small deletions context, so a row can vanish right away and come back if the delete does not go through.
 
-4. Optimistic updates with rollback. `useSectionGrid` uses React 19 `useOptimistic` for sections and local state for tasks. A failed mutation reverts the UI back to server state. Deletions go through a small deletions context so a row can hide instantly and come back if the delete fails.
+5. Realtime in three shapes. Board lists subscribe to `postgres_changes` scoped by `org_id`. A board's sections and tasks subscribe by `board_id` and refetch (debounced) when something changes. Chat works differently: broadcast for messages, presence for online status, one channel per room.
 
-5. Realtime in three shapes. Board lists subscribe to `postgres_changes` scoped by `org_id`. A board's sections and tasks subscribe to `postgres_changes` scoped by `board_id` and refetch on change (debounced). Chat uses broadcast for messages and presence for online status, one channel per room.
-
-6. Some writes go through Postgres RPCs. Invitation acceptance, organization deletion, and chat room creation and membership are RPCs, which keeps those multi-row writes atomic.
+6. A few writes go through Postgres RPCs. Accepting an invitation, deleting an organization, and creating a chat room or adding members are all RPCs, which keeps those multi-row writes atomic.
 
 ## Project structure
 
 ```
 carlo-app/
-├── app/
-│   ├── (non-sidebar)/                # full-screen flows
-│   │   ├── page.tsx                  # home: your organizations
-│   │   ├── create/                   # create an organization
-│   │   ├── profile/                  # edit your profile
-│   │   └── invites/                  # invitations addressed to you
-│   ├── (sidebar)/                    # app shell with sidebar + org context
-│   │   └── organization/[orgId]/
-│   │       ├── page.tsx              # boards in the org
-│   │       ├── board/[boardId]/      # a board (sections + tasks)
-│   │       ├── members/              # members + invitations
-│   │       ├── settings/             # org settings
-│   │       └── inbox/                # chat rooms + messages
-│   ├── auth/
-│   │   ├── login/                    # magic-link login
-│   │   ├── setup/                    # first-run profile name
-│   │   └── confirm/route.ts          # OTP verification endpoint
-│   └── layout.tsx                    # root layout (fonts, top loader, providers)
-├── components/
-│   ├── auth/                         # login + profile-setup forms
-│   ├── board/                        # board list, create/update dialogs
-│   ├── section/                      # section grid, drag-and-drop, forms
-│   ├── task/                         # task cards, sortable items, detail sheet
-│   ├── organization/                 # org list, settings, invite dialog
-│   ├── inbox/                        # chat view, conversation list, room dialogs
-│   ├── invitation/                   # accept/decline actions
-│   ├── profile/                      # profile form
-│   ├── shell/                        # app shell, sidebar, topbar, command palette
-│   ├── common/                       # shared UI (buttons, modal, form, avatar, icons)
-│   └── ui/                           # shadcn primitives
-├── context/
-│   ├── auth-context.tsx              # current user + profile
-│   ├── org-context.tsx               # active organization
-│   └── deletions-context.tsx         # optimistic delete + rollback bookkeeping
-├── hooks/
-│   ├── use-board-realtime.ts         # live sections/tasks for a board
-│   ├── use-section-grid.ts           # drag-and-drop + optimistic board state
-│   ├── use-task-comments.ts          # task comments: load, live stream, optimistic post
-│   ├── use-realtime-chat.ts          # broadcast chat messaging
-│   └── use-presence.ts               # channel presence (who is online)
+├── app/          # routes: org boards, a board, members, settings, inbox, auth
+├── components/   # UI by domain: board, section, task, organization, inbox, shell, ui
+├── context/      # current user, active org, optimistic-deletion state
+├── hooks/        # board realtime, drag-and-drop board state, comments, chat, presence
 ├── lib/
-│   ├── supabase/
-│   │   ├── client.ts                 # browser client (anon key)
-│   │   ├── server.ts                 # server client (cookie-aware)
-│   │   └── middleware.ts             # session refresh + auth redirect
-│   ├── services/
-│   │   ├── queries/                  # server-only reads (incl. current-user, member)
-│   │   ├── actions/                  # server actions (create/update/move/delete)
-│   │   └── authz.ts                  # permission gates (canAccess/canModify/isOwner)
-│   ├── schemas/                      # Zod schemas per domain
-│   ├── board-ui.ts                   # board/section display helpers
-│   ├── types.ts                      # domain types
-│   └── utils.ts                      # date and misc helpers
-└── proxy.ts                          # Next.js 16 proxy (session refresh entry)
+│   ├── supabase/ # browser + server clients, session middleware
+│   ├── services/ # queries (reads), actions (writes), authz (permission gates)
+│   └── schemas/  # Zod schemas per domain
+└── proxy.ts      # Next.js 16 proxy: session refresh + auth redirect
 ```
-
-## Features in detail
-
-### Organizations
-Create, rename, and switch between organizations. Each one is an isolated workspace with its own boards, members, and settings. The sidebar has an org switcher.
-
-### Kanban boards
-An org can have many boards. Each new board starts with the default sections (To Do, In Progress, Testing, Done) and you can add more. Tasks drag and drop to reorder or move between sections, and the new order is saved.
-
-### Tasks
-A task has a title, description, assignee (any org member), due date, and priority. Open a task to see its details and comments, and edit it inline.
-
-### Team collaboration
-Invite members by email as an admin or a member. Duplicate invites are blocked, and there is a dedicated page to accept invitations. Members are listed with their profile details.
-
-### Real-time messaging
-Each org has built-in chat. Create named rooms and add members, send messages that broadcast to everyone connected, and see how many people are currently in a room through Supabase Presence. The conversation list sorts by latest activity and has a search filter.
-
-### Real-time board updates
-Board lists update when any board in the org is created, changed, or removed. Inside a board, section and task changes (including cross-section moves) trigger a debounced refetch so everyone stays in sync.
-
-### Authentication flow
-1. Enter your email on the login page.
-2. Supabase sends a magic-link OTP.
-3. Clicking the link hits `/auth/confirm`, which verifies the token.
-4. The proxy checks whether your profile name is set.
-5. First-time users go to `/auth/setup` to finish their profile.
-6. After that, cookie-based sessions keep you signed in.
 
 ## Data model
 
